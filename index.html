@@ -1,598 +1,618 @@
-<style>
-    /* CSS Reset and Global Styles */
-    :root {
-        --primary-color: #005a9c;
-        --secondary-color: #00a4e4;
-        --background-color: #f4f7f9;
-        --card-background: #ffffff;
-        --text-color: #333333;
-        --light-text-color: #666666;
-        --border-color: #e0e0e0;
-        --shadow-color: rgba(0, 0, 0, 0.08);
-        --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    }
+<!-- TODO: Before using in Circle, remove all code that's not indented. -->
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Non-Clinical Therapist Jobs</title>
+    <style>
+        /* CSS Reset and Global Styles */
+        /* TODO: Import/Replace w/ GNC colors */
+        :root {
+            --primary-color: #005a9c;
+            --secondary-color: #00a4e4;
+            --background-color: #f4f7f9;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --light-text-color: #666666;
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        }
 
-    *, *::before, *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
-
-    /* Main App Container */
-    .app-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-
-    h1 {
-        font-size: 2.5rem;
-        color: var(--primary-color);
-        text-align: center;
-        margin-bottom: 10px;
-    }
-    .app-subtitle {
-        text-align: center;
-        color: var(--light-text-color);
-        margin-bottom: 30px;
-        font-size: 1.1rem;
-    }
-
-    /* Layout */
-    .job-board-layout {
-        display: flex;
-        gap: 30px;
-        align-items: flex-start;
-    }
-
-    /* Filter Panel (Left Column) */
-    .filter-panel {
-        flex: 0 0 280px;
-        background-color: var(--card-background);
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px var(--shadow-color);
-        position: sticky;
-        top: 20px;
-    }
-
-    .filter-group {
-        margin-bottom: 25px;
-    }
-
-    .filter-group h3 {
-        font-size: 1.1rem;
-        margin-bottom: 12px;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 8px;
-    }
-
-    .filter-group input[type="text"] {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        font-size: 1rem;
-    }
-    
-    .checkbox-group label {
-        display: block;
-        margin-bottom: 8px;
-        cursor: pointer;
-        font-weight: 500;
-    }
-    
-    .checkbox-group input[type="checkbox"] {
-        margin-right: 8px;
-        accent-color: var(--primary-color);
-    }
-
-    .clear-filters-btn {
-        width: 100%;
-        padding: 12px;
-        background-color: var(--secondary-color);
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-size: 1rem;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-
-    .clear-filters-btn:hover {
-        background-color: #008ac7;
-    }
-
-    /* Job List (Right Column) */
-    .job-list {
-        flex: 1;
-    }
-
-    .job-card {
-        display: block; /* Make the <a> tag behave like a block */
-        text-decoration: none; /* Remove link underline */
-        color: inherit; /* Use default text color */
-        background-color: var(--card-background);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 4px var(--shadow-color);
-        cursor: pointer;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .job-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 12px var(--shadow-color);
-    }
-
-    .job-card-header {
-        display: flex;
-        align-items: flex-start;
-        gap: 15px;
-        margin-bottom: 15px;
-    }
-    
-    .job-card-header img {
-        width: 50px;
-        height: 50px;
-        border-radius: 4px;
-        object-fit: contain;
-    }
-
-    .job-card-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--primary-color);
-    }
-    
-    .job-card-company {
-        font-weight: 500;
-    }
-
-    .job-card-details {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        color: var(--light-text-color);
-        font-size: 0.9rem;
-    }
-    
-    .job-card-details span {
-        display: inline-flex;
-        align-items: center;
-    }
-    
-    /* NEW STYLES for on-card content */
-    .job-card-description {
-        margin-top: 15px;
-        padding-top: 15px;
-        border-top: 1px solid var(--border-color);
-        color: var(--text-color);
-        font-size: 0.95rem;
-    }
-
-    .job-card-skills {
-        margin-top: 15px;
-    }
-
-    .job-card-skills h4 {
-        margin-bottom: 10px;
-        font-size: 0.95rem;
-        color: var(--text-color);
-    }
-
-    .job-card-skills-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .skill-tag {
-        background-color: var(--background-color);
-        color: var(--primary-color);
-        padding: 5px 12px;
-        border-radius: 15px;
-        font-size: 0.9rem;
-        font-weight: 500;
-    }
-    /* END NEW STYLES */
-
-    .no-jobs-found {
-        text-align: center;
-        padding: 40px;
-        font-size: 1.2rem;
-        color: var(--light-text-color);
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
         h1 {
-            font-size: 2rem;
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 10px;
         }
-        .job-board-layout {
-            flex-direction: column;
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-        .filter-panel {
-            position: static;
-            width: 100%;
+
+        /* Main App Container */
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .app-subtitle {
+            text-align: center;
+            color: var(--light-text-color);
             margin-bottom: 30px;
-            flex: none;
+            font-size: 1.1rem;
         }
-    }
-</style>
 
-<div class="app-container">
-    <h1>Non-Clinical Therapist Jobs</h1>
-    <p class="app-subtitle">Discover your next career move beyond traditional patient care.</p>
-    
-    <div class="job-board-layout">
-        <aside class="filter-panel" id="filter-panel">
-            <div class="filter-group">
-                <h3>Search by Keyword</h3>
-                <input type="text" id="search-input" placeholder="e.g., Informatics, Manager">
-            </div>
+        /* Layout */
+        .job-board-layout {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
 
-            <div class="filter-group">
-                <h3>Location</h3>
-                <input type="text" id="location-input" placeholder="e.g., Remote, New York">
-            </div>
+        /* Filter Panel (Left Column) */
+        .filter-panel {
+            flex: 0 0 280px;
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px var(--shadow-color);
+            position: sticky;
+            top: 20px;
+        }
 
-            <div class="filter-group">
-                <h3>Job Type</h3>
-                <div class="checkbox-group" id="type-filter">
-                    <label><input type="checkbox" value="Full-time"> Full-time</label>
-                    <label><input type="checkbox" value="Part-time"> Part-time</label>
-                    <label><input type="checkbox" value="Contract"> Contract</label>
+        .filter-group {
+            margin-bottom: 25px;
+        }
+
+        .filter-group h3 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .filter-group input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .checkbox-group label {
+            display: block;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 8px;
+            accent-color: var(--primary-color);
+        }
+
+        .clear-filters-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .clear-filters-btn:hover {
+            background-color: #008ac7;
+        }
+
+        .job-list {
+            flex: 1;
+        }
+
+        .job-card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px var(--shadow-color);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px var(--shadow-color);
+        }
+
+        .job-card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .job-card-header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            object-fit: contain;
+        }
+
+        .job-card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .job-card-company {
+            font-weight: 500;
+        }
+
+        .job-card-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            color: var(--light-text-color);
+            font-size: 0.9rem;
+        }
+        
+        .job-card-details span {
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .job-card-details span:not(:last-child)::after {
+            content: '•';
+            margin: 0 8px;
+            color: var(--light-text-color);
+        }
+        
+        .job-card-description {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+
+        .job-card-skills {
+            margin-top: 15px;
+        }
+
+        .job-card-skills h4 {
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: var(--text-color);
+        }
+
+        .job-card-skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .skill-tag {
+            background-color: var(--background-color);
+            color: var(--primary-color);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .no-jobs-found {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: var(--light-text-color);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .job-board-layout {
+                flex-direction: column;
+            }
+            .filter-panel {
+                position: static;
+                width: 100%;
+                margin-bottom: 30px;
+                flex: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>Non-Clinical Therapist Jobs</h1>
+        <p class="app-subtitle">Discover your next career move beyond traditional patient care.</p>
+        
+        <div class="job-board-layout">
+            <aside class="filter-panel" id="filter-panel">
+                <div class="filter-group">
+                    <h3>Search by Keyword</h3>
+                    <input type="text" id="search-input" placeholder="e.g., Informatics, Manager">
                 </div>
-            </div>
-            
-            <div class="filter-group">
-                <h3>Experience Level</h3>
-                <div class="checkbox-group" id="level-filter">
-                    <label><input type="checkbox" value="Entry-level"> Entry-level</label>
-                    <label><input type="checkbox" value="Mid-level"> Mid-level</label>
-                    <label><input type="checkbox" value="Senior"> Senior</label>
-                </div>
-            </div>
-            
-            <button class="clear-filters-btn" id="clear-filters-btn">Clear All Filters</button>
-        </aside>
 
-        <main class="job-list" id="job-list">
+                <div class="filter-group">
+                    <h3>Location</h3>
+                    <input type="text" id="location-input" placeholder="e.g., Remote, New York">
+                </div>
+
+                <div class="filter-group">
+                    <h3>Job Type</h3>
+                    <div class="checkbox-group" id="type-filter">
+                        <label><input type="checkbox" value="Full-time"> Full-time</label>
+                        <label><input type="checkbox" value="Part-time"> Part-time</label>
+                        <label><input type="checkbox" value="Contract"> Contract</label>
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <h3>Experience Level</h3>
+                    <div class="checkbox-group" id="level-filter">
+                        <label><input type="checkbox" value="Entry-level"> Entry-level</label>
+                        <label><input type="checkbox" value="Mid-level"> Mid-level</label>
+                        <label><input type="checkbox" value="Senior"> Senior</label>
+                    </div>
+                </div>
+                
+                <button class="clear-filters-btn" id="clear-filters-btn">Clear All Filters</button>
+            </aside>
+
+            <main class="job-list" id="job-list">
             </main>
+        </div>
     </div>
-</div>
+    <script>
+        // --- 1. DATA SOURCE  ---
+        const jobs = [
+            {
+                id: 1,
+                title: "Clinical Liaison (PT/OT/SLP)",
+                company: "CareConnect Health",
+                location: "New York, NY",
+                type: "Full-time",
+                level: "Mid-level",
+                postedDate: "2023-10-26",
+                description: "As a Clinical Liaison, you will be the bridge between referring hospitals and our post-acute care facilities. Your clinical expertise as a therapist will be vital in assessing patient needs and ensuring smooth transitions of care.",
+                skills: ["Patient Assessment", "Sales", "Communication", "Interpersonal Skills", "CRM Software"],
+                companyLogo: "https://placehold.co/100x100/005a9c/FFFFFF?text=CH"
+            },
+            {
+                id: 2,
+                title: "Rehab Informatics Specialist (OT)",
+                company: "Innovate Rehab Tech",
+                location: "Remote",
+                type: "Full-time",
+                level: "Mid-level",
+                postedDate: "2023-10-25",
+                description: "Join our team to optimize and implement EMR/EHR systems for therapy departments. You will work on workflow analysis, system configuration, and staff training to improve documentation efficiency and data quality.",
+                skills: ["EHR/EMR Systems", "Data Analysis", "Project Management", "Workflow Optimization", "Training"],
+                companyLogo: "https://placehold.co/100x100/00a4e4/FFFFFF?text=IR"
+            },
+            {
+                id: 3,
+                title: "Director of Rehabilitation",
+                company: "Summit Senior Living",
+                location: "Chicago, IL",
+                type: "Full-time",
+                level: "Senior",
+                postedDate: "2023-10-24",
+                description: "Oversee all therapy operations, including budgeting, staffing, and program development for a large skilled nursing facility. Strong leadership and knowledge of healthcare regulations (PDPM) are required.",
+                skills: ["Leadership", "Budgeting", "Healthcare Management", "Compliance", "Program Development"],
+                companyLogo: "https://placehold.co/100x100/333333/FFFFFF?text=SS"
+            },
+            {
+                id: 4,
+                title: "Utilization Review Therapist (PT)",
+                company: "HealthFirst Insurance",
+                location: "Remote",
+                type: "Full-time",
+                level: "Mid-level",
+                postedDate: "2023-10-23",
+                description: "Perform clinical reviews of therapy service requests to determine medical necessity and appropriateness of care based on established guidelines. Requires strong critical thinking and documentation review skills.",
+                skills: ["Clinical Review", "Insurance Guidelines", "Documentation", "Critical Thinking", "Medical Necessity"],
+                companyLogo: "https://placehold.co/100x100/4CAF50/FFFFFF?text=HI"
+            },
+            {
+                id: 5,
+                title: "Assistive Technology Professional (ATP/SLP)",
+                company: "AccessTech Solutions",
+                location: "Hybrid (Austin, TX)",
+                type: "Full-time",
+                level: "Senior",
+                postedDate: "2023-10-22",
+                description: "Assess individuals with disabilities and recommend appropriate assistive technology, including AAC devices and computer access solutions. This role involves client evaluation, device trials, and training.",
+                skills: ["Assistive Technology", "AAC Devices", "Client Evaluation", "Seating & Mobility", "Training"],
+                companyLogo: "https://placehold.co/100x100/FFC107/333333?text=AT"
+            },
+            {
+                id: 6,
+                title: "Academic Coordinator of Clinical Education (ACCE)",
+                company: "Metropolitan University",
+                location: "Boston, MA",
+                type: "Full-time",
+                level: "Senior",
+                postedDate: "2023-10-21",
+                description: "Manage the clinical education component of a DPT program. Responsibilities include securing clinical sites, managing student placements, and ensuring compliance with accreditation standards.",
+                skills: ["Clinical Education", "Academia", "Networking", "Compliance", "Program Management"],
+                companyLogo: "https://placehold.co/100x100/9C27B0/FFFFFF?text=MU"
+            },
+            {
+                id: 7,
+                title: "Ergonomics Consultant (PT/OT)",
+                company: "WorkSafe Consulting",
+                location: "Remote",
+                type: "Contract",
+                level: "Mid-level",
+                postedDate: "2023-10-20",
+                description: "Provide ergonomic assessments and training for corporate clients to prevent workplace injuries. This role requires travel to client sites and developing customized injury prevention programs.",
+                skills: ["Ergonomics", "Workplace Safety", "Consulting", "Public Speaking", "Report Writing"],
+                companyLogo: "https://placehold.co/100x100/F44336/FFFFFF?text=WC"
+            },
+            {
+                id: 8,
+                title: "Telehealth Program Manager (SLP preferred)",
+                company: "ConnectTherapy",
+                location: "Remote",
+                type: "Full-time",
+                level: "Senior",
+                postedDate: "2023-10-19",
+                description: "Lead the development and expansion of our telehealth therapy services. You will be responsible for platform management, therapist training, quality assurance, and strategic growth.",
+                skills: ["Telehealth", "Program Management", "Technology", "Quality Assurance", "Strategy"],
+                companyLogo: "https://placehold.co/100x100/2196F3/FFFFFF?text=CT"
+            },
+            {
+                id: 9,
+                title: "Rehab Admissions Coordinator",
+                company: "NextStep Rehabilitation",
+                location: "San Francisco, CA",
+                type: "Full-time",
+                level: "Entry-level",
+                postedDate: "2023-10-18",
+                description: "Coordinate the patient admissions process for our inpatient rehab facility. This entry-level role is perfect for a new grad therapist looking to move into the administrative side of healthcare.",
+                skills: ["Coordination", "Customer Service", "Healthcare Administration", "Organization"],
+                companyLogo: "https://placehold.co/100x100/8BC34A/FFFFFF?text=NR"
+            },
+            {
+                id: 10,
+                title: "Product Manager - Digital Health (PT/OT)",
+                company: "HealthMotion App",
+                location: "Remote",
+                type: "Full-time",
+                level: "Mid-level",
+                postedDate: "2023-10-17",
+                description: "Use your clinical background to guide the development of a new mobile app for physical rehabilitation. You will define product features, work with developers, and analyze user feedback.",
+                skills: ["Product Management", "Agile", "User Experience (UX)", "Digital Health", "Roadmap Planning"],
+                companyLogo: "https://placehold.co/100x100/FF9800/FFFFFF?text=HM"
+            },
+            {
+                id: 11,
+                title: "Clinical Documentation Specialist",
+                company: "AccuDocs Medical",
+                location: "Remote",
+                type: "Part-time",
+                level: "Mid-level",
+                postedDate: "2023-10-16",
+                description: "Review therapy documentation for accuracy, compliance, and completeness. Provide feedback and education to clinicians to improve documentation quality.",
+                skills: ["Documentation Review", "Compliance", "Auditing", "Attention to Detail", "Education"],
+                companyLogo: "https://placehold.co/100x100/607D8B/FFFFFF?text=AM"
+            },
+            {
+                id: 12,
+                title: "Medical Science Liaison",
+                company: "BioMotion Devices",
+                location: "Territory-based (Midwest)",
+                type: "Full-time",
+                level: "Senior",
+                postedDate: "2023-10-15",
+                description: "Serve as a scientific expert on our company's rehabilitation devices. You will build relationships with key opinion leaders, present clinical data, and support research initiatives.",
+                skills: ["Scientific Communication", "Clinical Research", "Public Speaking", "Relationship Building", "Medical Devices"],
+                companyLogo: "https://placehold.co/100x100/795548/FFFFFF?text=BD"
+            },
+             {
+                id: 13,
+                title: "Corporate Health & Wellness Coach (PT/OT)",
+                company: "Vitality Corp",
+                location: "Chicago, IL",
+                type: "Full-time",
+                level: "Mid-level",
+                postedDate: "2023-10-14",
+                description: "Develop and implement wellness programs for corporate employees, focusing on movement, ergonomics, and stress management. Your therapy background will help create evidence-based initiatives.",
+                skills: ["Health Coaching", "Wellness Program", "Ergonomics", "Public Speaking", "Corporate Health"],
+                companyLogo: "https://placehold.co/100x100/03A9F4/FFFFFF?text=VC"
+            },
+            {
+                id: 14,
+                title: "Clinical Research Associate (CRA)",
+                company: "NeuroRehab Trials",
+                location: "Remote",
+                type: "Full-time",
+                level: "Mid-level",
+                postedDate: "2023-10-13",
+                description: "Monitor clinical trials for new rehabilitation interventions. Ensure compliance with protocols, manage site activities, and verify data integrity. Background in research is a plus.",
+                skills: ["Clinical Trials", "Research Monitoring", "GCP", "Data Integrity", "Site Management"],
+                companyLogo: "https://placehold.co/100x100/E91E63/FFFFFF?text=NT"
+            },
+            {
+                id: 15,
+                title: "Client Success Manager (SLP)",
+                company: "CommuniKate AAC",
+                location: "Remote",
+                type: "Full-time",
+                level: "Mid-level",
+                postedDate: "2023-10-12",
+                description: "Ensure that clinics and schools successfully implement our AAC software. Provide onboarding, training, and ongoing support to maximize client satisfaction and outcomes.",
+                skills: ["Client Relations", "SaaS", "Training", "Customer Support", "AAC"],
+                companyLogo: "https://placehold.co/100x100/673AB7/FFFFFF?text=CK"
+            },
+            {
+                id: 16,
+                title: "Appeals and Denials Specialist",
+                company: "ReimburseRight",
+                location: "Remote",
+                type: "Part-time",
+                level: "Mid-level",
+                postedDate: "2023-10-11",
+                description: "Write letters of medical necessity and appeal insurance denials for therapy services. This role requires excellent writing skills and a deep understanding of clinical justification.",
+                skills: ["Medical Writing", "Insurance Appeals", "Reimbursement", "Advocacy", "Documentation"],
+                companyLogo: "https://placehold.co/100x100/009688/FFFFFF?text=RR"
+            },
+            {
+                id: 17,
+                title: "Junior Ergonomics Specialist",
+                company: "WorkSafe Consulting",
+                location: "New York, NY",
+                type: "Full-time",
+                level: "Entry-level",
+                postedDate: "2023-10-10",
+                description: "Assist senior consultants with ergonomic assessments and reports. A great entry-level role for a therapist passionate about injury prevention in the workplace.",
+                skills: ["Ergonomics", "Data Collection", "Report Writing", "Safety", "Analysis"],
+                companyLogo: "https://placehold.co/100x100/F44336/FFFFFF?text=WC"
+            }
+        ];
 
-<script>
-    // --- 1. DATA SOURCE ---
-    const jobs = [
-        {
-            id: 1,
-            title: "Clinical Liaison (PT/OT/SLP)",
-            company: "CareConnect Health",
-            location: "New York, NY",
-            type: "Full-time",
-            level: "Mid-level",
-            postedDate: "2023-10-26",
-            description: "As a Clinical Liaison, you will be the bridge between referring hospitals and our post-acute care facilities. Your clinical expertise as a therapist will be vital in assessing patient needs and ensuring smooth transitions of care.",
-            skills: ["Patient Assessment", "Sales", "Communication", "Interpersonal Skills", "CRM Software"],
-            companyLogo: "https://placehold.co/100x100/005a9c/FFFFFF?text=CH"
-        },
-        {
-            id: 2,
-            title: "Rehab Informatics Specialist (OT)",
-            company: "Innovate Rehab Tech",
-            location: "Remote",
-            type: "Full-time",
-            level: "Mid-level",
-            postedDate: "2023-10-25",
-            description: "Join our team to optimize and implement EMR/EHR systems for therapy departments. You will work on workflow analysis, system configuration, and staff training to improve documentation efficiency and data quality.",
-            skills: ["EHR/EMR Systems", "Data Analysis", "Project Management", "Workflow Optimization", "Training"],
-            companyLogo: "https://placehold.co/100x100/00a4e4/FFFFFF?text=IR"
-        },
-        {
-            id: 3,
-            title: "Director of Rehabilitation",
-            company: "Summit Senior Living",
-            location: "Chicago, IL",
-            type: "Full-time",
-            level: "Senior",
-            postedDate: "2023-10-24",
-            description: "Oversee all therapy operations, including budgeting, staffing, and program development for a large skilled nursing facility. Strong leadership and knowledge of healthcare regulations (PDPM) are required.",
-            skills: ["Leadership", "Budgeting", "Healthcare Management", "Compliance", "Program Development"],
-            companyLogo: "https://placehold.co/100x100/333333/FFFFFF?text=SS"
-        },
-        {
-            id: 4,
-            title: "Utilization Review Therapist (PT)",
-            company: "HealthFirst Insurance",
-            location: "Remote",
-            type: "Full-time",
-            level: "Mid-level",
-            postedDate: "2023-10-23",
-            description: "Perform clinical reviews of therapy service requests to determine medical necessity and appropriateness of care based on established guidelines. Requires strong critical thinking and documentation review skills.",
-            skills: ["Clinical Review", "Insurance Guidelines", "Documentation", "Critical Thinking", "Medical Necessity"],
-            companyLogo: "https://placehold.co/100x100/4CAF50/FFFFFF?text=HI"
-        },
-        {
-            id: 5,
-            title: "Assistive Technology Professional (ATP/SLP)",
-            company: "AccessTech Solutions",
-            location: "Hybrid (Austin, TX)",
-            type: "Full-time",
-            level: "Senior",
-            postedDate: "2023-10-22",
-            description: "Assess individuals with disabilities and recommend appropriate assistive technology, including AAC devices and computer access solutions. This role involves client evaluation, device trials, and training.",
-            skills: ["Assistive Technology", "AAC Devices", "Client Evaluation", "Seating & Mobility", "Training"],
-            companyLogo: "https://placehold.co/100x100/FFC107/333333?text=AT"
-        },
-        {
-            id: 6,
-            title: "Academic Coordinator of Clinical Education (ACCE)",
-            company: "Metropolitan University",
-            location: "Boston, MA",
-            type: "Full-time",
-            level: "Senior",
-            postedDate: "2023-10-21",
-            description: "Manage the clinical education component of a DPT program. Responsibilities include securing clinical sites, managing student placements, and ensuring compliance with accreditation standards.",
-            skills: ["Clinical Education", "Academia", "Networking", "Compliance", "Program Management"],
-            companyLogo: "https://placehold.co/100x100/9C27B0/FFFFFF?text=MU"
-        },
-        {
-            id: 7,
-            title: "Ergonomics Consultant (PT/OT)",
-            company: "WorkSafe Consulting",
-            location: "Remote",
-            type: "Contract",
-            level: "Mid-level",
-            postedDate: "2023-10-20",
-            description: "Provide ergonomic assessments and training for corporate clients to prevent workplace injuries. This role requires travel to client sites and developing customized injury prevention programs.",
-            skills: ["Ergonomics", "Workplace Safety", "Consulting", "Public Speaking", "Report Writing"],
-            companyLogo: "https://placehold.co/100x100/F44336/FFFFFF?text=WC"
-        },
-        {
-            id: 8,
-            title: "Telehealth Program Manager (SLP preferred)",
-            company: "ConnectTherapy",
-            location: "Remote",
-            type: "Full-time",
-            level: "Senior",
-            postedDate: "2023-10-19",
-            description: "Lead the development and expansion of our telehealth therapy services. You will be responsible for platform management, therapist training, quality assurance, and strategic growth.",
-            skills: ["Telehealth", "Program Management", "Technology", "Quality Assurance", "Strategy"],
-            companyLogo: "https://placehold.co/100x100/2196F3/FFFFFF?text=CT"
-        },
-        {
-            id: 9,
-            title: "Rehab Admissions Coordinator",
-            company: "NextStep Rehabilitation",
-            location: "San Francisco, CA",
-            type: "Full-time",
-            level: "Entry-level",
-            postedDate: "2023-10-18",
-            description: "Coordinate the patient admissions process for our inpatient rehab facility. This entry-level role is perfect for a new grad therapist looking to move into the administrative side of healthcare.",
-            skills: ["Coordination", "Customer Service", "Healthcare Administration", "Organization"],
-            companyLogo: "https://placehold.co/100x100/8BC34A/FFFFFF?text=NR"
-        },
-        {
-            id: 10,
-            title: "Product Manager - Digital Health (PT/OT)",
-            company: "HealthMotion App",
-            location: "Remote",
-            type: "Full-time",
-            level: "Mid-level",
-            postedDate: "2023-10-17",
-            description: "Use your clinical background to guide the development of a new mobile app for physical rehabilitation. You will define product features, work with developers, and analyze user feedback.",
-            skills: ["Product Management", "Agile", "User Experience (UX)", "Digital Health", "Roadmap Planning"],
-            companyLogo: "https://placehold.co/100x100/FF9800/FFFFFF?text=HM"
-        },
-        {
-            id: 11,
-            title: "Clinical Documentation Specialist",
-            company: "AccuDocs Medical",
-            location: "Remote",
-            type: "Part-time",
-            level: "Mid-level",
-            postedDate: "2023-10-16",
-            description: "Review therapy documentation for accuracy, compliance, and completeness. Provide feedback and education to clinicians to improve documentation quality.",
-            skills: ["Documentation Review", "Compliance", "Auditing", "Attention to Detail", "Education"],
-            companyLogo: "https://placehold.co/100x100/607D8B/FFFFFF?text=AM"
-        },
-        {
-            id: 12,
-            title: "Medical Science Liaison",
-            company: "BioMotion Devices",
-            location: "Territory-based (Midwest)",
-            type: "Full-time",
-            level: "Senior",
-            postedDate: "2023-10-15",
-            description: "Serve as a scientific expert on our company's rehabilitation devices. You will build relationships with key opinion leaders, present clinical data, and support research initiatives.",
-            skills: ["Scientific Communication", "Clinical Research", "Public Speaking", "Relationship Building", "Medical Devices"],
-            companyLogo: "https://placehold.co/100x100/795548/FFFFFF?text=BD"
-        },
-         {
-            id: 13,
-            title: "Corporate Health & Wellness Coach (PT/OT)",
-            company: "Vitality Corp",
-            location: "Chicago, IL",
-            type: "Full-time",
-            level: "Mid-level",
-            postedDate: "2023-10-14",
-            description: "Develop and implement wellness programs for corporate employees, focusing on movement, ergonomics, and stress management. Your therapy background will help create evidence-based initiatives.",
-            skills: ["Health Coaching", "Wellness Program", "Ergonomics", "Public Speaking", "Corporate Health"],
-            companyLogo: "https://placehold.co/100x100/03A9F4/FFFFFF?text=VC"
-        },
-        {
-            id: 14,
-            title: "Clinical Research Associate (CRA)",
-            company: "NeuroRehab Trials",
-            location: "Remote",
-            type: "Full-time",
-            level: "Mid-level",
-            postedDate: "2023-10-13",
-            description: "Monitor clinical trials for new rehabilitation interventions. Ensure compliance with protocols, manage site activities, and verify data integrity. Background in research is a plus.",
-            skills: ["Clinical Trials", "Research Monitoring", "GCP", "Data Integrity", "Site Management"],
-            companyLogo: "https://placehold.co/100x100/E91E63/FFFFFF?text=NT"
-        },
-        {
-            id: 15,
-            title: "Client Success Manager (SLP)",
-            company: "CommuniKate AAC",
-            location: "Remote",
-            type: "Full-time",
-            level: "Mid-level",
-            postedDate: "2023-10-12",
-            description: "Ensure that clinics and schools successfully implement our AAC software. Provide onboarding, training, and ongoing support to maximize client satisfaction and outcomes.",
-            skills: ["Client Relations", "SaaS", "Training", "Customer Support", "AAC"],
-            companyLogo: "https://placehold.co/100x100/673AB7/FFFFFF?text=CK"
-        },
-        {
-            id: 16,
-            title: "Appeals and Denials Specialist",
-            company: "ReimburseRight",
-            location: "Remote",
-            type: "Part-time",
-            level: "Mid-level",
-            postedDate: "2023-10-11",
-            description: "Write letters of medical necessity and appeal insurance denials for therapy services. This role requires excellent writing skills and a deep understanding of clinical justification.",
-            skills: ["Medical Writing", "Insurance Appeals", "Reimbursement", "Advocacy", "Documentation"],
-            companyLogo: "https://placehold.co/100x100/009688/FFFFFF?text=RR"
-        },
-        {
-            id: 17,
-            title: "Junior Ergonomics Specialist",
-            company: "WorkSafe Consulting",
-            location: "New York, NY",
-            type: "Full-time",
-            level: "Entry-level",
-            postedDate: "2023-10-10",
-            description: "Assist senior consultants with ergonomic assessments and reports. A great entry-level role for a therapist passionate about injury prevention in the workplace.",
-            skills: ["Ergonomics", "Data Collection", "Report Writing", "Safety", "Analysis"],
-            companyLogo: "https://placehold.co/100x100/F44336/FFFFFF?text=WC"
-        }
-    ];
+        // --- 2. DOM ELEMENT REFERENCES ---
+        const jobListContainer = document.getElementById('job-list');
+        const searchInput = document.getElementById('search-input');
+        const locationInput = document.getElementById('location-input');
+        const typeFilterContainer = document.getElementById('type-filter');
+        const levelFilterContainer = document.getElementById('level-filter');
+        const clearFiltersBtn = document.getElementById('clear-filters-btn');
 
-    // --- 2. DOM ELEMENT REFERENCES ---
-    const jobListContainer = document.getElementById('job-list');
-    const searchInput = document.getElementById('search-input');
-    const locationInput = document.getElementById('location-input');
-    const typeFilterContainer = document.getElementById('type-filter');
-    const levelFilterContainer = document.getElementById('level-filter');
-    const clearFiltersBtn = document.getElementById('clear-filters-btn');
-    // Modal DOM references removed
+        // --- 3. RENDERING LOGIC ---
+        const renderJobs = (jobsToRender) => {
+            jobListContainer.innerHTML = '';
 
-    // --- 3. RENDERING LOGIC ---
-    const renderJobs = (jobsToRender) => {
-        jobListContainer.innerHTML = ''; // Clear existing list
+            if (jobsToRender.length === 0) {
+                jobListContainer.innerHTML = '<p class="no-jobs-found">No jobs found matching your criteria.</p>';
+                return;
+            }
 
-        if (jobsToRender.length === 0) {
-            jobListContainer.innerHTML = '<p class="no-jobs-found">No jobs found matching your criteria.</p>';
-            return;
-        }
+            const fragment = document.createDocumentFragment();
 
-        jobsToRender.forEach(job => {
-            // --- MODIFIED: Create an <a> tag instead of a <div> ---
-            const jobCard = document.createElement('a');
-            jobCard.classList.add('job-card');
-            // --- MODIFIED: Set the href, target, and rel for the link ---
-            jobCard.href = "https://community.gononclinical.com/c/tncpt-starter-jobs/remote-nationwide-patch-systems-marketing-account-manager";
-            jobCard.target = "_blank";
-            jobCard.rel = "noopener noreferrer";
+            jobsToRender.forEach(job => {
+                const jobCard = document.createElement('a');
+                jobCard.classList.add('job-card');
+                jobCard.href = "https://community.gononclinical.com/c/tncpt-starter-jobs/remote-nationwide-patch-systems-marketing-account-manager";
+                jobCard.target = "_blank";
+                jobCard.rel = "noopener noreferrer";
 
-            // --- MODIFIED: Create skills HTML string ---
-            const skillsHtml = job.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('');
+                const skillsHtml = job.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('');
 
-            // --- MODIFIED: Updated innerHTML to include description and skills, and remove buttons ---
-            jobCard.innerHTML = `
-                <div class="job-card-header">
-                    <img src="${job.companyLogo}" alt="${job.company} logo">
-                    <div>
-                        <h2 class="job-card-title">${job.title}</h2>
-                        <p class="job-card-company">${job.company}</p>
+                jobCard.innerHTML = `
+                    <div class="job-card-header">
+                        <img src="${job.companyLogo}" alt="${job.company} logo">
+                        <div>
+                            <h2 class="job-card-title">${job.title}</h2>
+                            <p class="job-card-company">${job.company}</p>
+                        </div>
                     </div>
-                </div>
-                <div class="job-card-details">
-                    <span>📍 ${job.location}</span>
-                    <span>•</span>
-                    <span>${job.type}</span>
-                    <span>•</span>
-                    <span>${job.level}</span>
-                </div>
-                <p class="job-card-description">${job.description}</p>
-                <div class="job-card-skills">
-                    <h4>Required Skills</h4>
-                    <div class="job-card-skills-list">
-                        ${skillsHtml}
+                    <div class="job-card-details">
+                        <span>📍 ${job.location}</span>
+                        <span>${job.type}</span>
+                        <span>${job.level}</span>
                     </div>
-                </div>
-            `;
-            jobListContainer.appendChild(jobCard);
+                    <p class="job-card-description">${job.description}</p>
+                    <div class="job-card-skills">
+                        <h4>Required Skills</h4>
+                        <div class="job-card-skills-list">
+                            ${skillsHtml}
+                        </div>
+                    </div>
+                `;
+
+                fragment.appendChild(jobCard);
+            });
+
+            jobListContainer.appendChild(fragment);
+        };
+        
+        // --- Helper Function for Checkbox Values ---
+        const getCheckedValues = (container) => 
+            Array.from(container.querySelectorAll('input:checked')).map(cb => cb.value);
+
+        // --- 4. FILTERING LOGIC ---
+        const applyFilters = () => {
+            let filteredJobs = [...jobs];
+
+            // Get filter values
+            const searchTerm = searchInput.value.toLowerCase();
+            const locationTerm = locationInput.value.toLowerCase();
+            
+            const selectedTypes = getCheckedValues(typeFilterContainer);
+            const selectedLevels = getCheckedValues(levelFilterContainer);
+
+            // Apply search filter
+            if (searchTerm) {
+                filteredJobs = filteredJobs.filter(job => 
+                    job.title.toLowerCase().includes(searchTerm) || 
+                    job.description.toLowerCase().includes(searchTerm) ||
+                    job.skills.some(skill => skill.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            // Apply location filter
+            if (locationTerm) {
+                filteredJobs = filteredJobs.filter(job => 
+                    job.location.toLowerCase().includes(locationTerm)
+                );
+            }
+
+            // Apply type filter
+            if (selectedTypes.length > 0) {
+                filteredJobs = filteredJobs.filter(job => selectedTypes.includes(job.type));
+            }
+            
+            // Apply level filter
+            if (selectedLevels.length > 0) {
+                filteredJobs = filteredJobs.filter(job => selectedLevels.includes(job.level));
+            }
+
+            renderJobs(filteredJobs);
+        };
+
+        // --- 6. EVENT LISTENERS ---
+        // --- Debounce Utility Function ---
+        const debounce = (func, delay) => {
+            let timeout;
+            return function(...args) {
+                const context = this;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), delay);
+            };
+        };
+
+        const debouncedApplyFilters = debounce(applyFilters, 500); // 500ms debounce
+        searchInput.addEventListener('input', debouncedApplyFilters);
+        locationInput.addEventListener('input', debouncedApplyFilters);
+        typeFilterContainer.addEventListener('change', applyFilters);
+        levelFilterContainer.addEventListener('change', applyFilters);
+
+        clearFiltersBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            locationInput.value = '';
+            typeFilterContainer.querySelectorAll('input:checked').forEach(cb => cb.checked = false);
+            levelFilterContainer.querySelectorAll('input:checked').forEach(cb => cb.checked = false);
+            applyFilters();
         });
-    };
-    
-    // --- 4. FILTERING LOGIC ---
-    const applyFilters = () => {
-        let filteredJobs = [...jobs];
 
-        // Get filter values
-        const searchTerm = searchInput.value.toLowerCase();
-        const locationTerm = locationInput.value.toLowerCase();
-        
-        const selectedTypes = Array.from(typeFilterContainer.querySelectorAll('input:checked')).map(cb => cb.value);
-        const selectedLevels = Array.from(levelFilterContainer.querySelectorAll('input:checked')).map(cb => cb.value);
-
-        // Apply search filter
-        if (searchTerm) {
-            filteredJobs = filteredJobs.filter(job => 
-                job.title.toLowerCase().includes(searchTerm) || 
-                job.description.toLowerCase().includes(searchTerm)
-            );
-        }
-        
-        // Apply location filter
-        if (locationTerm) {
-            filteredJobs = filteredJobs.filter(job => 
-                job.location.toLowerCase().includes(locationTerm)
-            );
-        }
-
-        // Apply type filter
-        if (selectedTypes.length > 0) {
-            filteredJobs = filteredJobs.filter(job => selectedTypes.includes(job.type));
-        }
-        
-        // Apply level filter
-        if (selectedLevels.length > 0) {
-            filteredJobs = filteredJobs.filter(job => selectedLevels.includes(job.level));
-        }
-
-        renderJobs(filteredJobs);
-    };
-    
-    // --- 5. MODAL LOGIC (Removed) ---
-    // showModal function removed
-    // closeModal function removed
-    
-    // --- 6. EVENT LISTENERS ---
-    searchInput.addEventListener('input', applyFilters);
-    locationInput.addEventListener('input', applyFilters);
-    typeFilterContainer.addEventListener('change', applyFilters);
-    levelFilterContainer.addEventListener('change', applyFilters);
-
-    clearFiltersBtn.addEventListener('click', () => {
-        searchInput.value = '';
-        locationInput.value = '';
-        typeFilterContainer.querySelectorAll('input:checked').forEach(cb => cb.checked = false);
-        levelFilterContainer.querySelectorAll('input:checked').forEach(cb => cb.checked = false);
-        applyFilters();
-    });
-
-    // --- MODIFIED: All modal-related event listeners have been removed ---
-    // (jobListContainer click listener, modalCloseBtn listener, modal backdrop listener, keydown listener)
-
-    // --- 7. INITIAL RENDER ---
-    renderJobs(jobs);
-</script>
+        // --- 7. INITIAL RENDER ---
+        renderJobs(jobs);
+    </script>
+</body>
+</html>
