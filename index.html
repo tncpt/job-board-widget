@@ -1,6 +1,7 @@
 <!-- TODO: Before using in Circle, remove all code that's not indented. -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <style>
         /* CSS Reset and Global Styles */
@@ -322,7 +323,6 @@
                     try {
                         handleJobData(data);
                     } finally {
-                        // cleanup
                         try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
                         if (script.parentNode) script.parentNode.removeChild(script);
                         clearTimeout(timeout);
@@ -391,26 +391,26 @@
                         : '';
 
                     jobCard.innerHTML = `
-                    <div class="job-card-header">
-                        <img src="${escapeHtml(job.companyLogo) || 'https://placehold.co/100x100/CCCCCC/999999?text=Logo'}" alt="Company logo">
-                        <div>
-                            <h2 class="job-card-title"></h2>
-                            <p class="job-card-company"></p>
+                        <div class="job-card-header">
+                            <img src="${escapeHtml(job.companyLogo) || 'https://placehold.co/100x100/CCCCCC/999999?text=Logo'}" alt="Company logo">
+                            <div>
+                                <h2 class="job-card-title"></h2>
+                                <p class="job-card-company"></p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="job-card-details">
-                        <span>📍 <span class="job-card-location"></span></span>
-                        <span class="job-card-type"></span>
-                        <span class="job-card-level"></span>
-                    </div>
-                    <p class="job-card-description"></p>
-                    <div class="job-card-skills">
-                        <h4>Required Skills</h4>
-                        <div class="job-card-skills-list">
-                            ${skillsHtml}
+                        <div class="job-card-details">
+                            <span>📍 <span class="job-card-location"></span></span>
+                            <span class="job-card-type"></span>
+                            <span class="job-card-level"></span>
                         </div>
-                    </div>
-                `;
+                        <p class="job-card-description"></p>
+                        <div class="job-card-skills">
+                            <h4>Required Skills</h4>
+                            <div class="job-card-skills-list">
+                                ${skillsHtml}
+                            </div>
+                        </div>
+                    `;
 
                     // Safely set text content
                     jobCard.querySelector('.job-card-company').textContent = job.company || '';
