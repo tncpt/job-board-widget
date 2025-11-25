@@ -147,6 +147,16 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
+        /* Ensure link pseudo-classes do not change nested text color */
+        .job-card,
+        .job-card:link,
+        .job-card:visited,
+        .job-card:hover,
+        .job-card:active {
+            color: inherit;
+            text-decoration: none;
+        }
+
         .job-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 6px 12px var(--shadow-color);
@@ -175,6 +185,7 @@
         .job-card-company {
             font-weight: 500;
             line-height: 1.5;
+            color: var(--text-color);
         }
 
         .job-card-details {
