@@ -24,7 +24,7 @@ function doGet(e) {
 
     const requiredHeaders = [
       "Universal ID", "Job Title", "Company Name", "Job Location",
-      "Job Level", "NC101 Share Date", "Summary", "Expired"
+      "Job Level", "NC101 Share Date", "Summary", "Expired", "Circle URL"
     ];
 
     for (const header of requiredHeaders) {
@@ -69,6 +69,7 @@ function doGet(e) {
         description: row[headerMap["Summary"]],
         skills: null,
         companyLogo: null,
+        url: row[headerMap["Circle URL"]],
       });
     });
 
