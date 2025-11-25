@@ -1,522 +1,526 @@
-<!-- TODO: Before using in Circle, remove all code that's not indented. -->
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <style>
-        /* CSS Reset and Global Styles (scoped to the widget) */
-        /* Prefer host-provided variables; fall back to sensible defaults */
-        :root {
-            --primary-color: var(--brand, #007daf);
-            --secondary-color: #e67300;
-            --background-color: var(--color-background-primary, #fefcfa);
-            --card-background: var(--color-background-secondary, #f7f9fa);
-            --text-color: var(--color-text-dark, #2b2b2b);
-            --light-text-color: var(--color-text-light, #717680);
-            --border-color: var(--color-border-primary, #e0e0e0);
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --font-family: var(--font-system-ui, InterVariable, system-ui, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
-        }
 
-        /* Scope resets to the widget root so host styles are preserved */
-        #jbw-root,
-        #jbw-root *,
-        #jbw-root *::before,
-        #jbw-root *::after {
-            box-sizing: border-box;
-        }
+<!-- BEGIN Circle Widget Head -->
+<style>
+    /* CSS Reset and Global Styles (scoped to the widget) */
+    /* Prefer host-provided variables; fall back to sensible defaults */
+    :root {
+        --primary-color: var(--brand, #007daf);
+        --secondary-color: #e67300;
+        --background-color: var(--color-background-secondary, #fefcfa);
+        --card-background: var(--color-background-primary, #f7f9fa);
+        --text-color: var(--color-text-dark, #2b2b2b);
+        --light-text-color: var(--color-text-light, #717680);
+        --border-color: var(--color-border-primary, #e0e0e0);
+        --shadow-color: rgba(0, 0, 0, 0.1);
+        --font-family: var(--font-system-ui, InterVariable, system-ui, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
+    }
 
-        /* Let the host control base font family/size/color; use inherit/fallbacks */
-        #jbw-root {
-            font-family: var(--font-family, inherit);
-            font-size: 1rem;
-            color: inherit;
-        }
+    /* Scope resets to the widget root so host styles are preserved */
+    #jbw-root,
+    #jbw-root *,
+    #jbw-root *::before,
+    #jbw-root *::after {
+        box-sizing: border-box;
+    }
 
-        #jbw-root h2,
-        #jbw-root p {
-            margin: 0;
-        }
+    /* Let the host control base font family/size/color; use inherit/fallbacks */
+    #jbw-root {
+        font-family: var(--font-family, inherit);
+        font-size: 1rem;
+        color: inherit;
+        background-color: var(--background-color);
+    }
 
-        #jbw-root p.app-subtitle {
-            margin-bottom: 30px;
-        }
+    #jbw-root h2,
+    #jbw-root p {
+        margin: 0;
+    }
 
+    #jbw-root p.app-subtitle {
+        text-align: center;
+        color: var(--light-text-color);
+        margin: 0 0 30px 0;
+        font-size: 1.1rem;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    /* Main App Container */
+    .app-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Layout */
+    .job-board-layout {
+        display: flex;
+        gap: 30px;
+        align-items: flex-start;
+    }
+
+    /* Filter Panel (Left Column) */
+    .filter-panel {
+        flex: 0 0 280px;
+        background-color: var(--card-background);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px var(--shadow-color);
+        position: sticky;
+        top: 20px;
+    }
+
+    .filter-group {
+        margin-bottom: 25px;
+    }
+
+    .filter-group h3 {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 8px;
+        color: var(--text-color);
+    }
+
+    .filter-group input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+
+    .checkbox-group label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        cursor: pointer;
+        font-weight: 400;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        margin-right: 8px;
+        accent-color: var(--primary-color);
+    }
+
+    .clear-filters-btn {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .clear-filters-btn:hover {
+        background-color: var(--secondary-color-hover, var(--secondary-color));
+    }
+
+    .job-list {
+        flex: 1;
+    }
+
+    .job-card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        background-color: var(--card-background);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px var(--shadow-color);
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    /* Ensure link pseudo-classes do not change nested text color */
+    .job-card,
+    .job-card:link,
+    .job-card:visited,
+    .job-card:hover,
+    .job-card:active {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .job-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px var(--shadow-color);
+    }
+
+    .job-card-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .job-card-header img {
+        width: 50px;
+        height: 50px;
+        border-radius: 4px;
+        object-fit: contain;
+    }
+
+    .job-card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--secondary-color);
+    }
+
+    .job-card-company {
+        font-weight: 500;
+        line-height: 1.5;
+        color: var(--text-color);
+    }
+
+    .job-card-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        color: var(--text-color);
+        font-size: 0.9rem;
+    }
+
+    .job-card-details span {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .job-card-details span:not(:last-child)::after {
+        content: '•';
+        margin: 0 0 0 8px;
+        color: var(--light-text-color);
+    }
+
+    .job-card-description {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid var(--border-color);
+        color: var(--text-color);
+        font-size: 0.95rem;
+    }
+
+    .job-card-skills {
+        margin-top: 15px;
+    }
+
+    .job-card-skills h4 {
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+        color: var(--text-color);
+    }
+
+    .job-card-skills-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .skill-tag {
+        background-color: var(--background-color);
+        color: var(--primary-color);
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .no-jobs-found {
+        text-align: center;
+        padding: 40px;
+        font-size: 1.2rem;
+        color: var(--light-text-color);
+    }
+
+    @media (max-width: 768px) {
         h1 {
-            font-size: 2.5rem;
-            color: var(--primary-color);
-            text-align: center;
-            margin-bottom: 10px;
+            font-size: 2rem;
         }
 
-        /* Main App Container */
-        .app-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .app-subtitle {
-            text-align: center;
-            color: var(--light-text-color);
-            margin: 0 0 30px 0;
-            font-size: 1.1rem;
-        }
-
-        /* Layout */
         .job-board-layout {
-            display: flex;
-            gap: 30px;
-            align-items: flex-start;
+            flex-direction: column;
         }
 
-        /* Filter Panel (Left Column) */
         .filter-panel {
-            flex: 0 0 280px;
-            background-color: var(--card-background);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px var(--shadow-color);
-            position: sticky;
-            top: 20px;
-        }
-
-        .filter-group {
-            margin-bottom: 25px;
-        }
-
-        .filter-group h3 {
-            font-size: 1.1rem;
-            margin-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-        }
-
-        .filter-group input[type="text"] {
+            position: static;
             width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 1rem;
+            margin-bottom: 30px;
+            flex: none;
         }
+    }
+</style>
+<!-- END Circle Widget Head -->
 
-        .checkbox-group label {
-            display: block;
-            margin-bottom: 8px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            margin-right: 8px;
-            accent-color: var(--primary-color);
-        }
-
-        .clear-filters-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--secondary-color);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .clear-filters-btn:hover {
-            background-color: var(--secondary-color-hover, var(--secondary-color));
-        }
-
-        .job-list {
-            flex: 1;
-        }
-
-        .job-card {
-            display: block;
-            text-decoration: none;
-            color: inherit;
-            background-color: var(--card-background);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px var(--shadow-color);
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        /* Ensure link pseudo-classes do not change nested text color */
-        .job-card,
-        .job-card:link,
-        .job-card:visited,
-        .job-card:hover,
-        .job-card:active {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        .job-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px var(--shadow-color);
-        }
-
-        .job-card-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .job-card-header img {
-            width: 50px;
-            height: 50px;
-            border-radius: 4px;
-            object-fit: contain;
-        }
-
-        .job-card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        .job-card-company {
-            font-weight: 500;
-            line-height: 1.5;
-            color: var(--text-color);
-        }
-
-        .job-card-details {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            color: var(--color-text-dark, #000);
-            font-size: 0.9rem;
-        }
-
-        .job-card-details span {
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .job-card-details span:not(:last-child)::after {
-            content: '•';
-            margin: 0 8px;
-            color: var(--light-text-color);
-        }
-
-        .job-card-description {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-color);
-            font-size: 0.95rem;
-        }
-
-        .job-card-skills {
-            margin-top: 15px;
-        }
-
-        .job-card-skills h4 {
-            margin-bottom: 10px;
-            font-size: 0.95rem;
-            color: var(--text-color);
-        }
-
-        .job-card-skills-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .skill-tag {
-            background-color: var(--background-color);
-            color: var(--primary-color);
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .no-jobs-found {
-            text-align: center;
-            padding: 40px;
-            font-size: 1.2rem;
-            color: var(--light-text-color);
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-
-            .job-board-layout {
-                flex-direction: column;
-            }
-
-            .filter-panel {
-                position: static;
-                width: 100%;
-                margin-bottom: 30px;
-                flex: none;
-            }
-        }
-    </style>
 </head>
-
 <body>
-    <div id="jbw-root">
-        <div class="app-container">
-            <h1>Non-Clinical Therapist Jobs</h1>
-            <p class="app-subtitle">Discover your next career move beyond traditional patient care.</p>
 
-            <div class="job-board-layout">
-                <aside class="filter-panel" id="filter-panel">
-                    <div class="filter-group">
-                        <h3>Search by Keyword</h3>
-                        <input type="text" id="jbw-search-input" placeholder="e.g., Informatics, Manager">
+<!-- BEGIN Circle Widget Body -->
+<div id="jbw-root">
+    <div class="app-container">
+        <h1>Non-Clinical Therapist Jobs</h1>
+        <p class="app-subtitle">Discover your next career move beyond traditional patient care.</p>
+
+        <div class="job-board-layout">
+            <aside class="filter-panel" id="filter-panel">
+                <div class="filter-group">
+                    <h3>Search by Keyword</h3>
+                    <input type="text" id="jbw-search-input" placeholder="e.g., Informatics, Manager">
+                </div>
+
+                <div class="filter-group">
+                    <h3>Location</h3>
+                    <input type="text" id="jbw-location-input" placeholder="e.g., Remote, New York">
+                </div>
+
+                <div class="filter-group">
+                    <h3>Job Type</h3>
+                    <div class="checkbox-group" id="jbw-type-filter">
+                        <label><input type="checkbox" value="Contract"> Contract</label>
+                        <label><input type="checkbox" value="Full-time"> Full-time</label>
+                        <label><input type="checkbox" value="Part-time"> Part-time</label>
+                        <label><input type="checkbox" value="Per-diem"> Per-diem</label>
+                        <label><input type="checkbox" value="PRN"> PRN</label>
                     </div>
+                </div>
 
-                    <div class="filter-group">
-                        <h3>Location</h3>
-                        <input type="text" id="jbw-location-input" placeholder="e.g., Remote, New York">
+                <div class="filter-group">
+                    <h3>Experience Level</h3>
+                    <div class="checkbox-group" id="jbw-level-filter">
+                        <label><input type="checkbox" value="entry"> Entry</label>
+                        <label><input type="checkbox" value="experienced"> Mid–Sr.</label>
                     </div>
+                </div>
 
-                    <div class="filter-group">
-                        <h3>Job Type</h3>
-                        <div class="checkbox-group" id="jbw-type-filter">
-                            <label><input type="checkbox" value="Contract"> Contract</label>
-                            <label><input type="checkbox" value="Full-time"> Full-time</label>
-                            <label><input type="checkbox" value="Part-time"> Part-time</label>
-                            <label><input type="checkbox" value="Per-diem"> Per-diem</label>
-                            <label><input type="checkbox" value="PRN"> PRN</label>
-                        </div>
-                    </div>
+                <button class="clear-filters-btn" id="jbw-clear-filters-btn">Clear All Filters</button>
+            </aside>
 
-                    <div class="filter-group">
-                        <h3>Experience Level</h3>
-                        <div class="checkbox-group" id="jbw-level-filter">
-                            <label><input type="checkbox" value="entry"> Entry</label>
-                            <label><input type="checkbox" value="experienced"> Mid–Sr.</label>
-                        </div>
-                    </div>
-
-                    <button class="clear-filters-btn" id="jbw-clear-filters-btn">Clear All Filters</button>
-                </aside>
-
-                <main class="job-list" id="jbw-job-list">
-                </main>
-            </div>
+            <main class="job-list" id="jbw-job-list">
+            </main>
         </div>
     </div>
-    <script>
-        // Contained widget scope
-        (function () {
-            let allFetchedJobs = [];
-            const ROOT = document.getElementById('jbw-root');
-            const webAppUrl = 'https://script.google.com/macros/s/AKfycbzL15Kpb0X5HjXTFhyrIHwqQYYu1OanpCY0_GwTt9z3rSIBO0HI_9R8IxAsl_sfCzmN/exec';
+</div>
+<script>
+    // Contained widget scope
+    (function () {
+        let allFetchedJobs = [];
+        const ROOT = document.getElementById('jbw-root');
+        const webAppUrl = 'https://script.google.com/macros/s/AKfycbzL15Kpb0X5HjXTFhyrIHwqQYYu1OanpCY0_GwTt9z3rSIBO0HI_9R8IxAsl_sfCzmN/exec';
 
-            // Helpers
-            const escapeHtml = (str) => String(str === undefined || str === null ? '' : str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/\"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-            const capitalize = (s) => String(s || '').charAt(0).toUpperCase() + String(s || '').slice(1);
+        // Helpers
+        const escapeHtml = (str) => String(str === undefined || str === null ? '' : str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+        const capitalize = (s) => String(s || '').charAt(0).toUpperCase() + String(s || '').slice(1);
 
-            function handleJobData(jobs) {
-                if (jobs && !jobs.error && Array.isArray(jobs)) {
-                    allFetchedJobs = jobs;
-                    applyFilters();
-                } else if (jobs && jobs.error) {
-                    const errorMessage = jobs.error;
-                    console.error('API Error:', errorMessage);
-                    jobListContainer.innerHTML = `<p class="no-jobs-found">Error loading jobs: ${escapeHtml(errorMessage)}</p>`;
-                } else {
-                    console.error('Invalid response: expected array of jobs');
-                    jobListContainer.innerHTML = `<p class="no-jobs-found">Error: Invalid data format from server.</p>`;
-                }
-            }
-
-            function fetchJobs() {
-                jobListContainer.innerHTML = '<p class="no-jobs-found">Loading jobs...</p>';
-
-                const script = document.createElement('script');
-
-                const callbackName = 'handleJobData_jbw_' + Math.random().toString(36).slice(2);
-                window[callbackName] = function (data) {
-                    try {
-                        handleJobData(data);
-                    } finally {
-                        try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
-                        if (script.parentNode) script.parentNode.removeChild(script);
-                        clearTimeout(timeout);
-                    }
-                };
-
-                script.src = `${webAppUrl}?callback=${callbackName}`;
-
-                const tenSecondTimeout = 10000;
-                const timeout = setTimeout(() => {
-                    if (script.parentNode) script.parentNode.removeChild(script);
-                    try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
-                    handleJobData({ error: 'Request timeout - server took too long to respond.' });
-                }, tenSecondTimeout);
-
-                script.onload = () => {
-                    clearTimeout(timeout);
-                    if (script.parentNode) script.parentNode.removeChild(script);
-                };
-                script.onerror = () => {
-                    clearTimeout(timeout);
-                    if (script.parentNode) script.parentNode.removeChild(script);
-                    try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
-                    handleJobData({ error: 'Failed to connect to the job server.' });
-                };
-
-                try {
-                    (ROOT || document.head).appendChild(script);
-                } catch (e) {
-                    // CSP or DOM restrictions
-                    clearTimeout(timeout);
-                    try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
-                    handleJobData({ error: 'Embedding platform blocked script injection (CSP).' });
-                }
-            }
-
-            // --- 2. DOM ELEMENT REFERENCES ---
-            const clearFiltersBtn = document.getElementById('jbw-clear-filters-btn');
-            const jobListContainer = document.getElementById('jbw-job-list');
-            const levelFilterContainer = document.getElementById('jbw-level-filter');
-            const locationInput = document.getElementById('jbw-location-input');
-            const searchInput = document.getElementById('jbw-search-input');
-            const typeFilterContainer = document.getElementById('jbw-type-filter');
-
-            // --- 3. RENDERING LOGIC ---
-            const renderJobs = (jobsToRender) => {
-                jobListContainer.innerHTML = '';
-
-                if (jobsToRender.length === 0) {
-                    jobListContainer.innerHTML = '<p class="no-jobs-found">No jobs found matching your criteria.</p>';
-                    return;
-                }
-
-                const fragment = document.createDocumentFragment();
-
-                jobsToRender.forEach(job => {
-                    const jobCard = document.createElement('a');
-                    jobCard.classList.add('job-card');
-                    // TODO: Ensure proper ID (universal id and/or circle id) and URL are returned/used.
-                    jobCard.href = job.url;
-                    jobCard.rel = "noopener noreferrer";
-                    jobCard.target = "_blank";
-
-                    const descriptionHtml = '<p class="job-card-description"></p>';
-                    const skillsHtml = (job.skills && Array.isArray(job.skills)) ? `
-                            <div class="job-card-skills">
-                                <h4>Required Skills</h4>
-                                <div class="job-card-skills-list">
-                                    ${job.skills.map(skill => `<span class="skill-tag">${escapeHtml(skill)}</span>`).join('')}
-                                </div>
-                            </div>
-                        ` : '';
-
-                    jobCard.innerHTML = `
-                        <div class="job-card-header">
-                            <img src="${escapeHtml(job.companyLogo) || 'https://placehold.co/100x100/CCCCCC/999999?text=Logo'}" alt="Company logo">
-                            <div>
-                                <h2 class="job-card-title"></h2>
-                                <p class="job-card-company"></p>
-                            </div>
-                        </div>
-                        <div class="job-card-details">
-                            <span>📍 <span class="job-card-location"></span></span>
-                            <span class="job-card-type"></span>
-                            <span class="job-card-level"></span>
-                        </div>
-                        ${skillsHtml}
-                    `;
-
-                    // Safely set text content
-                    jobCard.querySelector('.job-card-company').textContent = job.company || '';
-                    // jobCard.querySelector('.job-card-description').textContent = job.description || '';
-                    jobCard.querySelector('.job-card-level').textContent = capitalize(job.level || '');
-                    jobCard.querySelector('.job-card-location').textContent = job.location || '';
-                    jobCard.querySelector('.job-card-title').textContent = job.title || '';
-                    jobCard.querySelector('.job-card-type').textContent = job.type || '';
-
-                    fragment.appendChild(jobCard);
-                });
-
-                jobListContainer.appendChild(fragment);
-            };
-
-            // --- Helper Function for Checkbox Values ---
-            const getCheckedValues = (container) =>
-                Array.from(container.querySelectorAll('input:checked')).map(cb => cb.value);
-
-            // --- 4. FILTERING LOGIC ---
-            const applyFilters = () => {
-                let filteredJobs = [...allFetchedJobs];
-
-                const searchTerm = searchInput.value.toLowerCase();
-                const locationTerm = locationInput.value.toLowerCase();
-                const selectedTypes = getCheckedValues(typeFilterContainer);
-                const selectedLevels = getCheckedValues(levelFilterContainer);
-
-                if (searchTerm) {
-                    filteredJobs = filteredJobs.filter(job =>
-                        job.title.toLowerCase().includes(searchTerm) ||
-                        job.description.toLowerCase().includes(searchTerm) ||
-                        (job.skills && Array.isArray(job.skills) && job.skills.some(skill => skill.toLowerCase().includes(searchTerm)))
-                    );
-                }
-                if (locationTerm) {
-                    filteredJobs = filteredJobs.filter(job =>
-                        job.location.toLowerCase().includes(locationTerm)
-                    );
-                }
-                if (selectedTypes.length > 0) {
-                    filteredJobs = filteredJobs.filter(job => selectedTypes.includes(job.type));
-                }
-                if (selectedLevels.length > 0) {
-                    filteredJobs = filteredJobs.filter(job => selectedLevels.includes(job.level));
-                }
-
-                renderJobs(filteredJobs);
-            };
-
-            // --- 6. EVENT LISTENERS ---
-            const debounce = (func, delay) => {
-                let timeout;
-                return function (...args) {
-                    const context = this;
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => func.apply(context, args), delay);
-                };
-            };
-
-            const oneHalfSecondDebounce = 500;
-            const debouncedApplyFilters = debounce(applyFilters, oneHalfSecondDebounce);
-            searchInput.addEventListener('input', debouncedApplyFilters);
-            locationInput.addEventListener('input', debouncedApplyFilters);
-            typeFilterContainer.addEventListener('change', applyFilters);
-            levelFilterContainer.addEventListener('change', applyFilters);
-
-            clearFiltersBtn.addEventListener('click', () => {
-                searchInput.value = '';
-                locationInput.value = '';
-                typeFilterContainer.querySelectorAll('input:checked').forEach(cb => cb.checked = false);
-                levelFilterContainer.querySelectorAll('input:checked').forEach(cb => cb.checked = false);
+        function handleJobData(jobs) {
+            if (jobs && !jobs.error && Array.isArray(jobs)) {
+                allFetchedJobs = jobs;
                 applyFilters();
+            } else if (jobs && jobs.error) {
+                const errorMessage = jobs.error;
+                console.error('API Error:', errorMessage);
+                jobListContainer.innerHTML = `<p class="no-jobs-found">Error loading jobs: ${escapeHtml(errorMessage)}</p>`;
+            } else {
+                console.error('Invalid response: expected array of jobs');
+                jobListContainer.innerHTML = `<p class="no-jobs-found">Error: Invalid data format from server.</p>`;
+            }
+        }
+
+        function fetchJobs() {
+            jobListContainer.innerHTML = '<p class="no-jobs-found">Loading jobs...</p>';
+
+            const script = document.createElement('script');
+
+            const callbackName = 'handleJobData_jbw_' + Math.random().toString(36).slice(2);
+            window[callbackName] = function (data) {
+                try {
+                    handleJobData(data);
+                } finally {
+                    try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
+                    if (script.parentNode) script.parentNode.removeChild(script);
+                    clearTimeout(timeout);
+                }
+            };
+
+            script.src = `${webAppUrl}?callback=${callbackName}`;
+
+            const tenSecondTimeout = 10000;
+            const timeout = setTimeout(() => {
+                if (script.parentNode) script.parentNode.removeChild(script);
+                try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
+                handleJobData({ error: 'Request timeout - server took too long to respond.' });
+            }, tenSecondTimeout);
+
+            script.onload = () => {
+                clearTimeout(timeout);
+                if (script.parentNode) script.parentNode.removeChild(script);
+            };
+            script.onerror = () => {
+                clearTimeout(timeout);
+                if (script.parentNode) script.parentNode.removeChild(script);
+                try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
+                handleJobData({ error: 'Failed to connect to the job server.' });
+            };
+
+            try {
+                (ROOT || document.head).appendChild(script);
+            } catch (e) {
+                // CSP or DOM restrictions
+                clearTimeout(timeout);
+                try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
+                handleJobData({ error: 'Embedding platform blocked script injection (CSP).' });
+            }
+        }
+
+        // --- 2. DOM ELEMENT REFERENCES ---
+        const clearFiltersBtn = document.getElementById('jbw-clear-filters-btn');
+        const jobListContainer = document.getElementById('jbw-job-list');
+        const levelFilterContainer = document.getElementById('jbw-level-filter');
+        const locationInput = document.getElementById('jbw-location-input');
+        const searchInput = document.getElementById('jbw-search-input');
+        const typeFilterContainer = document.getElementById('jbw-type-filter');
+
+        // --- 3. RENDERING LOGIC ---
+        const renderJobs = (jobsToRender) => {
+            jobListContainer.innerHTML = '';
+
+            if (jobsToRender.length === 0) {
+                jobListContainer.innerHTML = '<p class="no-jobs-found">No jobs found matching your criteria.</p>';
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+
+            jobsToRender.forEach(job => {
+                const jobCard = document.createElement('a');
+                jobCard.classList.add('job-card');
+                // TODO: Ensure proper ID (universal id and/or circle id) and URL are returned/used.
+                jobCard.href = job.url;
+                jobCard.rel = "noopener noreferrer";
+                jobCard.target = "_blank";
+
+                const descriptionHtml = '<p class="job-card-description"></p>';
+                const skillsHtml = (job.skills && Array.isArray(job.skills)) ? `
+                        <div class="job-card-skills">
+                            <h4>Required Skills</h4>
+                            <div class="job-card-skills-list">
+                                ${job.skills.map(skill => `<span class="skill-tag">${escapeHtml(skill)}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : '';
+
+                jobCard.innerHTML = `
+                    <div class="job-card-header">
+                        <img src="${escapeHtml(job.companyLogo) || 'https://placehold.co/100x100/CCCCCC/999999?text=Logo'}" alt="Company logo">
+                        <div>
+                            <h2 class="job-card-title"></h2>
+                            <p class="job-card-company"></p>
+                        </div>
+                    </div>
+                    <div class="job-card-details">
+                        <span>📍 <span class="job-card-location"></span></span>
+                        <span class="job-card-type"></span>
+                        <span class="job-card-level"></span>
+                    </div>
+                    ${skillsHtml}
+                `;
+
+                // Safely set text content
+                jobCard.querySelector('.job-card-company').textContent = job.company || '';
+                // jobCard.querySelector('.job-card-description').textContent = job.description || '';
+                jobCard.querySelector('.job-card-level').textContent = capitalize(job.level || '');
+                jobCard.querySelector('.job-card-location').textContent = job.location || '';
+                jobCard.querySelector('.job-card-title').textContent = job.title || '';
+                jobCard.querySelector('.job-card-type').textContent = job.type || '';
+
+                fragment.appendChild(jobCard);
             });
 
-            // --- 7. INITIAL RENDER ---
-            fetchJobs();
-        })();
-    </script>
+            jobListContainer.appendChild(fragment);
+        };
+
+        // --- Helper Function for Checkbox Values ---
+        const getCheckedValues = (container) =>
+            Array.from(container.querySelectorAll('input:checked')).map(cb => cb.value);
+
+        // --- 4. FILTERING LOGIC ---
+        const applyFilters = () => {
+            let filteredJobs = [...allFetchedJobs];
+
+            const searchTerm = searchInput.value.toLowerCase();
+            const locationTerm = locationInput.value.toLowerCase();
+            const selectedTypes = getCheckedValues(typeFilterContainer);
+            const selectedLevels = getCheckedValues(levelFilterContainer);
+
+            if (searchTerm) {
+                filteredJobs = filteredJobs.filter(job =>
+                    job.title.toLowerCase().includes(searchTerm) ||
+                    job.description.toLowerCase().includes(searchTerm) ||
+                    (job.skills && Array.isArray(job.skills) && job.skills.some(skill => skill.toLowerCase().includes(searchTerm)))
+                );
+            }
+            if (locationTerm) {
+                filteredJobs = filteredJobs.filter(job =>
+                    job.location.toLowerCase().includes(locationTerm)
+                );
+            }
+            if (selectedTypes.length > 0) {
+                filteredJobs = filteredJobs.filter(job => selectedTypes.includes(job.type));
+            }
+            if (selectedLevels.length > 0) {
+                filteredJobs = filteredJobs.filter(job => selectedLevels.includes(job.level));
+            }
+
+            renderJobs(filteredJobs);
+        };
+
+        // --- 6. EVENT LISTENERS ---
+        const debounce = (func, delay) => {
+            let timeout;
+            return function (...args) {
+                const context = this;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), delay);
+            };
+        };
+
+        const oneHalfSecondDebounce = 500;
+        const debouncedApplyFilters = debounce(applyFilters, oneHalfSecondDebounce);
+        searchInput.addEventListener('input', debouncedApplyFilters);
+        locationInput.addEventListener('input', debouncedApplyFilters);
+        typeFilterContainer.addEventListener('change', applyFilters);
+        levelFilterContainer.addEventListener('change', applyFilters);
+
+        clearFiltersBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            locationInput.value = '';
+            typeFilterContainer.querySelectorAll('input:checked').forEach(cb => cb.checked = false);
+            levelFilterContainer.querySelectorAll('input:checked').forEach(cb => cb.checked = false);
+            applyFilters();
+        });
+
+        // --- 7. INITIAL RENDER ---
+        fetchJobs();
+    })();
+</script>
+<!-- END Circle Widget Body -->
+
 </body>
 </html>
