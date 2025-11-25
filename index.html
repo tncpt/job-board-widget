@@ -399,7 +399,7 @@
                     const jobCard = document.createElement('a');
                     jobCard.classList.add('job-card');
                     // TODO: Ensure proper ID (universal id and/or circle id) and URL are returned/used.
-                    jobCard.href = `https://community.gononclinical.com/c/your-application-page-base-url?jobId=${job.id}`;
+                    jobCard.href = job.url;
                     jobCard.rel = "noopener noreferrer";
                     jobCard.target = "_blank";
 
