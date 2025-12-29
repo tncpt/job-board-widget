@@ -53,21 +53,18 @@
         margin-bottom: 10px;
     }
 
-    /* Main App Container */
     .app-container {
         max-width: 1200px;
         margin: 0 auto;
         padding: 20px;
     }
 
-    /* Layout */
     .job-board-layout {
         display: flex;
         gap: 30px;
         align-items: flex-start;
     }
 
-    /* Filter Panel (Left Column) */
     .filter-panel {
         flex: 0 0 280px;
         background-color: var(--card-background);
@@ -148,10 +145,10 @@
 
     /* Ensure link pseudo-classes do not change nested text color */
     .job-card,
-    .job-card:link,
-    .job-card:visited,
+    .job-card:active,
     .job-card:hover,
-    .job-card:active {
+    .job-card:link,
+    .job-card:visited {
         color: inherit;
         text-decoration: none;
     }
@@ -314,20 +311,21 @@
     </div>
 </div>
 <script>
-    // Contained widget scope
     (function () {
         let allFetchedJobs = [];
         const ROOT = document.getElementById('jbw-root');
         const webAppUrl = 'https://script.google.com/macros/s/AKfycbzL15Kpb0X5HjXTFhyrIHwqQYYu1OanpCY0_GwTt9z3rSIBO0HI_9R8IxAsl_sfCzmN/exec';
 
-        // Helpers
+        // --- 1. DEFINE FUNCTIONAL REQUIREMENTS ---
+        const capitalize = (s) => String(s || '').charAt(0).toUpperCase() + String(s || '').slice(1);
         const escapeHtml = (str) => String(str === undefined || str === null ? '' : str)
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/\"/g, '&quot;')
             .replace(/'/g, '&#39;');
-        const capitalize = (s) => String(s || '').charAt(0).toUpperCase() + String(s || '').slice(1);
+        const getCheckedValues = (container) =>
+            Array.from(container.querySelectorAll('input:checked')).map(cb => cb.value);
 
         function handleJobData(jobs) {
             if (jobs && !jobs.error && Array.isArray(jobs)) {
@@ -442,23 +440,17 @@
                     ${skillsHtml}
                 `;
 
-                // Safely set text content
                 jobCard.querySelector('.job-card-company').textContent = job.company || '';
                 // jobCard.querySelector('.job-card-description').textContent = job.description || '';
                 jobCard.querySelector('.job-card-level').textContent = capitalize(job.level || '');
                 jobCard.querySelector('.job-card-location').textContent = job.location || '';
                 jobCard.querySelector('.job-card-title').textContent = job.title || '';
                 jobCard.querySelector('.job-card-type').textContent = job.type || '';
-
                 fragment.appendChild(jobCard);
             });
 
             jobListContainer.appendChild(fragment);
         };
-
-        // --- Helper Function for Checkbox Values ---
-        const getCheckedValues = (container) =>
-            Array.from(container.querySelectorAll('input:checked')).map(cb => cb.value);
 
         // --- 4. FILTERING LOGIC ---
         const applyFilters = () => {
