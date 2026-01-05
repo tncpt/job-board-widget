@@ -1,607 +1,707 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
-    <!-- BEGIN Circle Widget Head -->
-    <style>
-        /* CSS Reset and Global Styles (scoped to the widget) */
-        /* Prefer host-provided variables; fall back to sensible defaults */
-        :root {
-            --primary-color: var(--brand, #007daf);
-            --secondary-color: #e67300;
-            --background-color: var(--color-background-secondary, #fefcfa);
-            --card-background: var(--color-background-primary, #f7f9fa);
-            --text-color: var(--color-text-dark, #2b2b2b);
-            --light-text-color: var(--color-text-light, #717680);
-            --border-color: var(--color-border-primary, #e0e0e0);
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --font-family: var(--font-system-ui, InterVariable, system-ui, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
-        }
+<!-- BEGIN Circle Widget Head -->
+<style>
+    :root {
+        --primary-color: var(--brand, #007daf);
+        --secondary-color: #e67300;
+        --background-color: var(--color-background-secondary, #fefcfa);
+        --card-background: var(--color-background-primary, #f7f9fa);
+        --text-color: var(--color-text-dark, #2b2b2b);
+        --light-text-color: var(--color-text-light, #717680);
+        --border-color: var(--color-border-primary, #e0e0e0);
+        --shadow-color: rgba(0, 0, 0, 0.1);
+        --font-family: var(--font-system-ui, InterVariable, system-ui, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
+    }
 
-        /* Scope resets to the widget root so host styles are preserved */
-        #jbw-root,
-        #jbw-root *,
-        #jbw-root *::before,
-        #jbw-root *::after {
-            box-sizing: border-box;
-        }
+    #jbw-root,
+    #jbw-root *,
+    #jbw-root *::before,
+    #jbw-root *::after {
+        box-sizing: border-box;
+    }
 
-        /* Let the host control base font family/size/color; use inherit/fallbacks */
-        #jbw-root {
-            font-family: var(--font-family, inherit);
-            font-size: 1rem;
-            color: inherit;
-            background-color: var(--background-color);
-        }
+    #jbw-root {
+        font-family: var(--font-family, inherit);
+        font-size: 1rem;
+        color: inherit;
+        background-color: var(--background-color);
+    }
 
-        #jbw-root h2,
-        #jbw-root p {
-            margin: 0;
-        }
+    #jbw-root h2,
+    #jbw-root p {
+        margin: 0;
+    }
 
-        #jbw-root p.app-subtitle {
-            text-align: center;
-            color: var(--light-text-color);
-            margin: 0 0 30px 0;
-            font-size: 1.1rem;
-        }
+    #jbw-root p.app-subtitle {
+        text-align: center;
+        color: var(--light-text-color);
+        margin: 0 0 30px 0;
+        font-size: 1.1rem;
+    }
 
+    h1 {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .app-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .job-board-layout {
+        display: flex;
+        gap: 30px;
+        align-items: flex-start;
+    }
+
+    .filter-panel {
+        flex: 0 0 280px;
+        background-color: var(--card-background);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px var(--shadow-color);
+        position: sticky;
+        top: 20px;
+    }
+
+    .filter-group {
+        margin-bottom: 25px;
+    }
+
+    .filter-group h3 {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 8px;
+        color: var(--text-color);
+    }
+
+    .filter-group input[type="text"],
+    .filter-group input[type="number"],
+    .filter-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+
+    .filter-group select {
+        background-color: white;
+        cursor: pointer;
+    }
+
+    .filter-group select.placeholder {
+        color: var(--light-text-color);
+    }
+
+    .filter-group select option {
+        color: var(--text-color);
+    }
+
+    .filter-group input[type="number"] {
+        padding-right: 5px;
+    }
+
+    .filter-group input[type="number"]::-webkit-inner-spin-button,
+    .filter-group input[type="number"]::-webkit-outer-spin-button {
+        opacity: 1;
+        width: 50px;
+        margin-left: 10px;
+        cursor: pointer;
+        position: relative;
+        right: 0;
+    }
+
+    .filter-group input[type="number"]::-webkit-inner-spin-button {
+        height: 38px;
+    }
+
+    .checkbox-group label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        cursor: pointer;
+        font-weight: 400;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        margin-right: 8px;
+        accent-color: var(--primary-color);
+    }
+
+    .clear-filters-btn {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .clear-filters-btn:hover {
+        background-color: var(--secondary-color-hover, var(--secondary-color));
+    }
+
+    .job-list {
+        flex: 1;
+    }
+
+    .job-card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        background-color: var(--card-background);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px var(--shadow-color);
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .job-card,
+    .job-card:active,
+    .job-card:hover,
+    .job-card:link,
+    .job-card:visited {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .job-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px var(--shadow-color);
+    }
+
+    .job-card-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .job-card-header .logo-container {
+        width: 50px;
+        height: 50px;
+        flex-shrink: 0;
+        position: relative;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        z-index: 0;
+    }
+
+    .job-card-header img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background-color: white;
+        display: block;
+        position: relative;
+        z-index: 2;
+    }
+
+    .logo-fallback {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        font-size: 1.2rem;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+        transition: filter 0.2s ease-in-out;
+    }
+
+    .job-card:hover .logo-fallback {
+        filter: brightness(1.1);
+    }
+
+    .job-card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--secondary-color);
+    }
+
+    .job-card-company {
+        font-weight: 500;
+        line-height: 1.5;
+        color: var(--text-color);
+    }
+
+    .job-card-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        color: var(--text-color);
+        font-size: 0.9rem;
+    }
+
+    .job-card-details span {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .job-card-details span:not(:last-child)::after {
+        content: '•';
+        margin: 0 0 0 8px;
+        color: var(--light-text-color);
+    }
+
+    .job-card-description {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid var(--border-color);
+        color: var(--text-color);
+        font-size: 0.95rem;
+    }
+
+    .job-card-skills {
+        margin-top: 15px;
+    }
+
+    .job-card-skills h4 {
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+        color: var(--text-color);
+    }
+
+    .job-card-skills-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .skill-tag {
+        background-color: var(--background-color);
+        color: var(--primary-color);
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .no-jobs-found {
+        text-align: center;
+        padding: 40px;
+        font-size: 1.2rem;
+        color: var(--light-text-color);
+    }
+
+    @media (max-width: 768px) {
         h1 {
-            font-size: 2.5rem;
-            color: var(--primary-color);
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .app-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+            font-size: 2rem;
         }
 
         .job-board-layout {
-            display: flex;
-            gap: 30px;
-            align-items: flex-start;
+            flex-direction: column;
         }
 
         .filter-panel {
-            flex: 0 0 280px;
-            background-color: var(--card-background);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px var(--shadow-color);
-            position: sticky;
-            top: 20px;
-        }
-
-        .filter-group {
-            margin-bottom: 25px;
-        }
-
-        .filter-group h3 {
-            font-size: 1.1rem;
-            margin-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-            color: var(--text-color);
-        }
-
-        .filter-group input[type="text"] {
+            position: static;
             width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 1rem;
+            margin-bottom: 30px;
+            flex: none;
         }
-
-        .checkbox-group label {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            cursor: pointer;
-            font-weight: 400;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            margin-right: 8px;
-            accent-color: var(--primary-color);
-        }
-
-        .clear-filters-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--secondary-color);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .clear-filters-btn:hover {
-            background-color: var(--secondary-color-hover, var(--secondary-color));
-        }
-
-        .job-list {
-            flex: 1;
-        }
-
-        .job-card {
-            display: block;
-            text-decoration: none;
-            color: inherit;
-            background-color: var(--card-background);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px var(--shadow-color);
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        /* Ensure link pseudo-classes do not change nested text color */
-        .job-card,
-        .job-card:active,
-        .job-card:hover,
-        .job-card:link,
-        .job-card:visited {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        .job-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px var(--shadow-color);
-        }
-
-        .job-card-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .job-card-header .logo-container {
-            width: 50px;
-            height: 50px;
-            flex-shrink: 0;
-            position: relative;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            /* Fix stacking context issue so children don't fall behind */
-            z-index: 0;
-        }
-
-        .job-card-header img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background-color: white;
-            display: block;
-            position: relative;
-            z-index: 2;
-            /* Always on top of fallback */
-        }
-
-        .logo-fallback {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-            font-size: 1.2rem;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-            /* Sit under the image (if present) but above card background */
-            transition: filter 0.2s ease-in-out;
-        }
-
-        /* Change slightly on hover as requested */
-        .job-card:hover .logo-fallback {
-            filter: brightness(1.1);
-        }
-
-        .job-card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--secondary-color);
-        }
-
-        .job-card-company {
-            font-weight: 500;
-            line-height: 1.5;
-            color: var(--text-color);
-        }
-
-        .job-card-details {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            color: var(--text-color);
-            font-size: 0.9rem;
-        }
-
-        .job-card-details span {
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .job-card-details span:not(:last-child)::after {
-            content: '•';
-            margin: 0 0 0 8px;
-            color: var(--light-text-color);
-        }
-
-        .job-card-description {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-color);
-            font-size: 0.95rem;
-        }
-
-        .job-card-skills {
-            margin-top: 15px;
-        }
-
-        .job-card-skills h4 {
-            margin-bottom: 10px;
-            font-size: 0.95rem;
-            color: var(--text-color);
-        }
-
-        .job-card-skills-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .skill-tag {
-            background-color: var(--background-color);
-            color: var(--primary-color);
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .no-jobs-found {
-            text-align: center;
-            padding: 40px;
-            font-size: 1.2rem;
-            color: var(--light-text-color);
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-
-            .job-board-layout {
-                flex-direction: column;
-            }
-
-            .filter-panel {
-                position: static;
-                width: 100%;
-                margin-bottom: 30px;
-                flex: none;
-            }
-        }
-    </style>
-    <!-- END Circle Widget Head -->
+    }
+</style>
+<!-- END Circle Widget Head -->
 
 </head>
-
 <body>
 
-    <!-- BEGIN Circle Widget Body -->
-    <div id="jbw-root">
-        <div class="app-container">
-            <h1>Non-Clinical Therapist Jobs</h1>
-            <p class="app-subtitle">Discover your next career move beyond traditional patient care.</p>
+<!-- BEGIN Circle Widget Body -->
+<div id="jbw-root">
+    <div class="app-container">
+        <h1>Non-Clinical Therapist Jobs</h1>
+        <p class="app-subtitle">Discover your next career move beyond traditional patient care.</p>
 
-            <div class="job-board-layout">
-                <aside class="filter-panel" id="filter-panel">
-                    <div class="filter-group">
-                        <h3>Search by Keyword</h3>
-                        <input type="text" id="jbw-search-input" placeholder="e.g., Informatics, Manager">
+        <div class="job-board-layout">
+            <aside class="filter-panel" id="filter-panel">
+                <div class="filter-group">
+                    <h3>Search by Keyword</h3>
+                    <input type="text" id="jbw-search-input" placeholder="e.g., Informatics, Manager">
+                </div>
+
+                <div class="filter-group">
+                    <h3>City</h3>
+                    <input type="text" id="jbw-city-input" placeholder="e.g., New York" maxlength="40">
+                </div>
+
+                <div class="filter-group">
+                    <h3>State</h3>
+                    <select id="jbw-state-select" class="placeholder">
+                        <option value="" selected>Select a state...</option>
+                        <option value="AL">Alabama</option>
+                        <option value="AK">Alaska</option>
+                        <option value="AZ">Arizona</option>
+                        <option value="AR">Arkansas</option>
+                        <option value="CA">California</option>
+                        <option value="CO">Colorado</option>
+                        <option value="CT">Connecticut</option>
+                        <option value="DE">Delaware</option>
+                        <option value="FL">Florida</option>
+                        <option value="GA">Georgia</option>
+                        <option value="HI">Hawaii</option>
+                        <option value="ID">Idaho</option>
+                        <option value="IL">Illinois</option>
+                        <option value="IN">Indiana</option>
+                        <option value="IA">Iowa</option>
+                        <option value="KS">Kansas</option>
+                        <option value="KY">Kentucky</option>
+                        <option value="LA">Louisiana</option>
+                        <option value="ME">Maine</option>
+                        <option value="MD">Maryland</option>
+                        <option value="MA">Massachusetts</option>
+                        <option value="MI">Michigan</option>
+                        <option value="MN">Minnesota</option>
+                        <option value="MS">Mississippi</option>
+                        <option value="MO">Missouri</option>
+                        <option value="MT">Montana</option>
+                        <option value="NE">Nebraska</option>
+                        <option value="NV">Nevada</option>
+                        <option value="NH">New Hampshire</option>
+                        <option value="NJ">New Jersey</option>
+                        <option value="NM">New Mexico</option>
+                        <option value="NY">New York</option>
+                        <option value="NC">North Carolina</option>
+                        <option value="ND">North Dakota</option>
+                        <option value="OH">Ohio</option>
+                        <option value="OK">Oklahoma</option>
+                        <option value="OR">Oregon</option>
+                        <option value="PA">Pennsylvania</option>
+                        <option value="RI">Rhode Island</option>
+                        <option value="SC">South Carolina</option>
+                        <option value="SD">South Dakota</option>
+                        <option value="TN">Tennessee</option>
+                        <option value="TX">Texas</option>
+                        <option value="UT">Utah</option>
+                        <option value="VT">Vermont</option>
+                        <option value="VA">Virginia</option>
+                        <option value="WA">Washington</option>
+                        <option value="WV">West Virginia</option>
+                        <option value="WI">Wisconsin</option>
+                        <option value="WY">Wyoming</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <h3>Zip Code</h3>
+                    <input type="text" id="jbw-postal-input" placeholder="e.g., 10001" maxlength="5" pattern="[0-9]*" inputmode="numeric">
+                </div>
+
+                <div class="filter-group">
+                    <h3>Distance (miles)</h3>
+                    <input type="number" id="jbw-miles-input" placeholder="50" min="0" max="1000" step="1">
+                </div>
+
+                <button id="jbw-apply-text-filters" class="clear-filters-btn" style="background-color: var(--primary-color); margin-bottom: 25px;">Search Jobs</button>
+
+                <div class="filter-group">
+                    <h3>Job Type</h3>
+                    <div class="checkbox-group" id="jbw-type-filter">
+                        <label><input type="checkbox" value="Contract"> Contract</label>
+                        <label><input type="checkbox" value="Full-time"> Full-time</label>
+                        <label><input type="checkbox" value="Part-time"> Part-time</label>
+                        <label><input type="checkbox" value="Per-diem"> Per-diem</label>
+                        <label><input type="checkbox" value="PRN"> PRN</label>
                     </div>
+                </div>
 
-                    <div class="filter-group">
-                        <h3>Location</h3>
-                        <input type="text" id="jbw-location-input" placeholder="e.g., Remote, New York">
+                <div class="filter-group">
+                    <h3>Experience Level</h3>
+                    <div class="checkbox-group" id="jbw-level-filter">
+                        <label><input type="checkbox" value="entry"> Entry</label>
+                        <label><input type="checkbox" value="experienced"> Mid–Sr.</label>
                     </div>
+                </div>
 
-                    <div class="filter-group">
-                        <h3>Job Type</h3>
-                        <div class="checkbox-group" id="jbw-type-filter">
-                            <label><input type="checkbox" value="Contract"> Contract</label>
-                            <label><input type="checkbox" value="Full-time"> Full-time</label>
-                            <label><input type="checkbox" value="Part-time"> Part-time</label>
-                            <label><input type="checkbox" value="Per-diem"> Per-diem</label>
-                            <label><input type="checkbox" value="PRN"> PRN</label>
-                        </div>
-                    </div>
-
-                    <div class="filter-group">
-                        <h3>Experience Level</h3>
-                        <div class="checkbox-group" id="jbw-level-filter">
-                            <label><input type="checkbox" value="entry"> Entry</label>
-                            <label><input type="checkbox" value="experienced"> Mid–Sr.</label>
-                        </div>
-                    </div>
-
-                    <button class="clear-filters-btn" id="jbw-clear-filters-btn">Clear All Filters</button>
-                </aside>
+                <button class="clear-filters-btn" id="jbw-clear-filters-btn">Clear All Filters</button>
+            </aside>
 
             <main class="job-list" id="jbw-job-list">
             </main>
         </div>
     </div>
 </div>
+
 <script>
-    (function () {
-        const SUPABASE_URL = 'https://woemwmydfdajegiemljg.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable__NX0fZeauvLKYNM6vKGaLA_m9lp6E8Q';
-        
-        let currentJobs = [];
-        const ROOT = document.getElementById('jbw-root');
+(function () {
+    const SUPABASE_URL = 'https://woemwmydfdajegiemljg.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable__NX0fZeauvLKYNM6vKGaLA_m9lp6E8Q';
+    
+    let currentJobs = [];
+    const ROOT = document.getElementById('jbw-root');
 
-        // --- 1. DEFINE FUNCTIONAL REQUIREMENTS ---
-        const capitalize = (s) => String(s || '').charAt(0).toUpperCase() + String(s || '').slice(1);
-        const escapeHtml = (str) => String(str === undefined || str === null ? '' : str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/\"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-        const getCheckedValues = (container) =>
-            Array.from(container.querySelectorAll('input:checked')).map(cb => cb.value);
+    // --- 1. DEFINE FUNCTIONAL REQUIREMENTS ---
+    const capitalize = (s) => String(s || '').charAt(0).toUpperCase() + String(s || '').slice(1);
+    const escapeHtml = (str) => String(str === undefined || str === null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    const getCheckedValues = (container) =>
+        Array.from(container.querySelectorAll('input:checked')).map(cb => cb.value);
 
-        // --- SUPABASE FETCH FUNCTION ---
-        // Using native fetch() instead of Supabase SDK to avoid CSP issues with CDN
-        async function fetchJobs(filters = {}) {
-            jobListContainer.innerHTML = '<p class="no-jobs-found">Loading jobs...</p>';
+    // --- SUPABASE FETCH FUNCTION ---
+    async function fetchJobs(filters = {}) {
+        const jobListContainer = document.getElementById('jbw-job-list');
+        jobListContainer.innerHTML = '<p class="no-jobs-found">Loading jobs...</p>';
 
-            try {
-                console.log('Fetching jobs from Supabase with filters:', filters);
-                
-                // Call the filter_jobs Postgres function via Supabase REST API
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/filter_jobs`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    },
-                    body: JSON.stringify({
-                        keyword: filters.keyword || null,
-                        city_state: filters.city_state || null,
-                        postal_code: filters.postal_code || null,
-                        distance_miles: filters.distance_miles || null,
-                        employment_types: filters.employment_types || [],
-                        experience_level: filters.experience_level || null
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Supabase error:', errorText);
-                    jobListContainer.innerHTML = `<p class="no-jobs-found">Error loading jobs: ${escapeHtml(response.statusText)}</p>`;
-                    return;
-                }
-
-                const data = await response.json();
-
-                if (!data || !Array.isArray(data)) {
-                    console.error('Invalid response: expected array of jobs, got:', data);
-                    jobListContainer.innerHTML = '<p class="no-jobs-found">Error: Invalid data format from server.</p>';
-                    return;
-                }
-
-                console.log(`Successfully fetched ${data.length} jobs from Supabase`);
-                
-                // Map function response to widget format
-                currentJobs = data.map(job => ({
-                    id: job.id,
-                    title: job.job_title,
-                    company: job.company,
-                    companyLogo: null, // Not available from filter_jobs function
-                    location: job.location,
-                    type: extractJobType(job.job_title), // Extract from title since not returned
-                    level: job.level,
-                    url: job.url,
-                    description: job.description,
-                    skills: [], // Not available from filter_jobs function
-                    posted_date: job.posted_date
-                }));
-
-                renderJobs(currentJobs);
-
-            } catch (err) {
-                console.error('Fetch error:', err);
-                jobListContainer.innerHTML = `<p class="no-jobs-found">Connection error: ${escapeHtml(err.message)}</p>`;
-            }
-        }
-
-        // Helper to extract job type from title (since function doesn't return it separately)
-        function extractJobType(title) {
-            const titleLower = (title || '').toLowerCase();
-            const types = ['contract', 'full-time', 'part-time', 'per-diem', 'prn'];
-            for (const type of types) {
-                if (titleLower.includes(type)) {
-                    return type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-');
-                }
-            }
-            return 'Full-time'; // Default
-        }
-
-            // --- 2. DOM ELEMENT REFERENCES ---
-            const clearFiltersBtn = document.getElementById('jbw-clear-filters-btn');
-            const jobListContainer = document.getElementById('jbw-job-list');
-            const levelFilterContainer = document.getElementById('jbw-level-filter');
-            const locationInput = document.getElementById('jbw-location-input');
-            const searchInput = document.getElementById('jbw-search-input');
-            const typeFilterContainer = document.getElementById('jbw-type-filter');
-
-            // --- 3. LOGO & UTILITIES ---
-            const LOGO_DEV_PUBLIC_KEY = 'pk_placeholder'; // TODO: Replace with actual key
-
-            const getInitials = (name) => {
-                if (!name) return '?';
-                const parts = name.trim().split(/\s+/);
-                if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-            };
-
-            const getCompanyColor = (name) => {
-                if (!name) return '#999999';
-                let hash = 0;
-                for (let i = 0; i < name.length; i++) {
-                    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-                }
-                const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
-                return '#' + '00000'.substring(0, 6 - c.length) + c;
-            };
-
-            const getLogoUrl = (companyName) => {
-                if (!companyName) return null;
-                // Heuristic: assume domain is name.removeSpaces.com
-                // In a real scenario, you'd want a website URL column in the DB.
-                const domain = companyName.toLowerCase().replace(/[^a-z0-9]/g, '') + '.com';
-                return `https://img.logo.dev/${domain}?token=${LOGO_DEV_PUBLIC_KEY}&size=100`;
-            };
-
-            // --- 4. RENDERING LOGIC ---
-            const renderJobs = (jobsToRender) => {
-                jobListContainer.innerHTML = '';
-
-                if (jobsToRender.length === 0) {
-                    jobListContainer.innerHTML = '<p class="no-jobs-found">No jobs found matching your criteria.</p>';
-                    return;
-                }
-
-                const fragment = document.createDocumentFragment();
-
-                jobsToRender.forEach(job => {
-                    const jobCard = document.createElement('a');
-                    jobCard.classList.add('job-card');
-                    jobCard.href = job.url;
-                    jobCard.rel = "noopener noreferrer";
-                    jobCard.target = "_blank";
-
-                    const descriptionHtml = '<p class="job-card-description"></p>';
-                    const skillsHtml = (job.skills && Array.isArray(job.skills)) ? `
-                        <div class="job-card-skills">
-                            <h4>Required Skills</h4>
-                            <div class="job-card-skills-list">
-                                ${job.skills.map(skill => `<span class="skill-tag">${escapeHtml(skill)}</span>`).join('')}
-                            </div>
-                        </div>
-                    ` : '';
-
-                    const companyName = job.company || 'Unknown';
-                    const logoUrl = getLogoUrl(companyName);
-                    const initials = getInitials(companyName);
-                    const bgColor = getCompanyColor(companyName);
-
-                    jobCard.innerHTML = `
-                    <div class="job-card-header">
-                        <div class="logo-container">
-                             <div class="logo-fallback" style="background-color: ${bgColor};">${initials}</div>
-                             <img src="${logoUrl}" alt="${escapeHtml(companyName)} logo" onerror="this.style.display='none'">
-                        </div>
-                        <div>
-                            <h2 class="job-card-title"></h2>
-                            <p class="job-card-company"></p>
-                        </div>
-                    </div>
-                    <div class="job-card-details">
-                        <span>📍 <span class="job-card-location"></span></span>
-                        <span class="job-card-type"></span>
-                        <span class="job-card-level"></span>
-                    </div>
-                    ${skillsHtml}
-                `;
-
-                    jobCard.querySelector('.job-card-company').textContent = companyName;
-                    // jobCard.querySelector('.job-card-description').textContent = job.description || '';
-                    // Wait, I put initials directly in innerHTML string literal above, so no need to querySelector it unless I wanted to set textContent to avoid XSS in initials (though getInitials does basic parsing).
-                    // Let's stick to the innerHTML method for initials as it's simple characters.
-
-                    jobCard.querySelector('.job-card-level').textContent = capitalize(job.level || '');
-                    jobCard.querySelector('.job-card-location').textContent = job.location || '';
-                    jobCard.querySelector('.job-card-title').textContent = job.title || '';
-                    jobCard.querySelector('.job-card-type').textContent = job.type || '';
-                    fragment.appendChild(jobCard);
-                });
-
-                jobListContainer.appendChild(fragment);
-            };
-
-        // --- 4. FILTERING LOGIC ---
-        // Server-side filtering via filter_jobs RPC function
-        const applyFilters = async () => {
-            const searchTerm = searchInput.value.trim();
-            const locationTerm = locationInput.value.trim();
-            const selectedTypes = getCheckedValues(typeFilterContainer);
-            const selectedLevels = getCheckedValues(levelFilterContainer);
-
-            // Build filter object for RPC call
-            const filters = {
-                keyword: searchTerm || null,
-                city_state: locationTerm || null, // Assumes format "City, ST"
-                postal_code: null, // Could add separate input for this
-                distance_miles: null, // Could add separate input for this
-                employment_types: selectedTypes.length > 0 ? selectedTypes : [],
-                experience_level: selectedLevels.length > 0 ? selectedLevels[0] : null // Function takes single value
-            };
-
-            await fetchJobs(filters);
-        };
-
-            // --- 6. EVENT LISTENERS ---
-            const debounce = (func, delay) => {
-                let timeout;
-                return function (...args) {
-                    const context = this;
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => func.apply(context, args), delay);
-                };
-            };
-
-            const oneHalfSecondDebounce = 500;
-            const debouncedApplyFilters = debounce(applyFilters, oneHalfSecondDebounce);
-            searchInput.addEventListener('input', debouncedApplyFilters);
-            locationInput.addEventListener('input', debouncedApplyFilters);
-            typeFilterContainer.addEventListener('change', applyFilters);
-            levelFilterContainer.addEventListener('change', applyFilters);
-
-            clearFiltersBtn.addEventListener('click', () => {
-                searchInput.value = '';
-                locationInput.value = '';
-                typeFilterContainer.querySelectorAll('input:checked').forEach(cb => cb.checked = false);
-                levelFilterContainer.querySelectorAll('input:checked').forEach(cb => cb.checked = false);
-                applyFilters();
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/filter_jobs`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                },
+                body: JSON.stringify({
+                    keyword: filters.keyword || null,
+                    city_state: filters.city_state || null,
+                    postal_code: filters.postal_code || null,
+                    distance_miles: filters.distance_miles || null,
+                    employment_types: filters.employment_types || [],
+                    experience_level: filters.experience_level || null
+                })
             });
 
-            // --- 7. INITIAL RENDER ---
-            fetchJobs();
-        })();
-    </script>
-    <!-- END Circle Widget Body -->
+            if (!response.ok) {
+                const errorText = await response.text();
+                jobListContainer.innerHTML = `<p class="no-jobs-found">Error: ${escapeHtml(response.statusText)}</p>`;
+                return;
+            }
+
+            const data = await response.json();
+            if (!data || !Array.isArray(data)) {
+                jobListContainer.innerHTML = '<p class="no-jobs-found">Error: Invalid data format.</p>';
+                return;
+            }
+
+            currentJobs = data.map(job => ({
+                id: job.id,
+                title: job.job_title || job.title,
+                company: job.company,
+                companyLogo: null,
+                location: job.location,
+                type: extractJobType(job.job_title || job.title),
+                level: job.level,
+                url: job.url,
+                description: job.description,
+                skills: [],
+                posted_date: job.posted_date || job.nc101_share_date
+            }));
+
+            renderJobs(currentJobs);
+
+        } catch (err) {
+            console.error('Fetch error:', err);
+            document.getElementById('jbw-job-list').innerHTML = `<p class="no-jobs-found">Connection error: ${escapeHtml(err.message)}</p>`;
+        }
+    }
+
+    function extractJobType(title) {
+        const titleLower = (title || '').toLowerCase();
+        const types = ['contract', 'full-time', 'part-time', 'per-diem', 'prn'];
+        for (const type of types) {
+            if (titleLower.includes(type)) {
+                return type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-');
+            }
+        }
+        return 'Full-time';
+    }
+
+    // --- 2. DOM ELEMENT REFERENCES ---
+    const clearFiltersBtn = document.getElementById('jbw-clear-filters-btn');
+    const jobListContainer = document.getElementById('jbw-job-list');
+    const levelFilterContainer = document.getElementById('jbw-level-filter');
+    const cityInput = document.getElementById('jbw-city-input');
+    const stateSelect = document.getElementById('jbw-state-select');
+    const postalInput = document.getElementById('jbw-postal-input');
+    const milesInput = document.getElementById('jbw-miles-input');
+    const searchInput = document.getElementById('jbw-search-input');
+    const typeFilterContainer = document.getElementById('jbw-type-filter');
+    const textSearchBtn = document.getElementById('jbw-apply-text-filters');
+
+    // --- 3. LOGO & UTILITIES ---
+    const LOGO_DEV_PUBLIC_KEY = 'pk_placeholder';
+
+    const getInitials = (name) => {
+        if (!name) return '?';
+        const parts = name.trim().split(/\s+/);
+        if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    };
+
+    const getCompanyColor = (name) => {
+        if (!name) return '#999999';
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) {
+            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+        return '#' + '00000'.substring(0, 6 - c.length) + c;
+    };
+
+    const getLogoUrl = (companyName) => {
+        if (!companyName) return null;
+        const domain = companyName.toLowerCase().replace(/[^a-z0-9]/g, '') + '.com';
+        return `https://img.logo.dev/${domain}?token=${LOGO_DEV_PUBLIC_KEY}&size=100`;
+    };
+
+    // --- 4. RENDERING LOGIC ---
+    const renderJobs = (jobsToRender) => {
+        jobListContainer.innerHTML = '';
+
+        if (jobsToRender.length === 0) {
+            jobListContainer.innerHTML = '<p class="no-jobs-found">No jobs found matching your criteria.</p>';
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+
+        jobsToRender.forEach(job => {
+            const jobCard = document.createElement('a');
+            jobCard.classList.add('job-card');
+            jobCard.href = job.url;
+            jobCard.rel = "noopener noreferrer";
+            jobCard.target = "_blank";
+
+            const companyName = job.company || 'Unknown';
+            const logoUrl = getLogoUrl(companyName);
+            const initials = getInitials(companyName);
+            const bgColor = getCompanyColor(companyName);
+
+            jobCard.innerHTML = `
+                <div class="job-card-header">
+                    <div class="logo-container">
+                        <div class="logo-fallback" style="background-color: ${bgColor};">${initials}</div>
+                        <img src="${logoUrl}" alt="${escapeHtml(companyName)} logo" onerror="this.style.display='none'">
+                    </div>
+                    <div>
+                        <h2 class="job-card-title"></h2>
+                        <p class="job-card-company"></p>
+                    </div>
+                </div>
+                <div class="job-card-details">
+                    <span>📍 <span class="job-card-location"></span></span>
+                    <span class="job-card-type"></span>
+                    <span class="job-card-level"></span>
+                </div>
+            `;
+
+            jobCard.querySelector('.job-card-company').textContent = companyName;
+            jobCard.querySelector('.job-card-level').textContent = capitalize(job.level || '');
+            jobCard.querySelector('.job-card-location').textContent = job.location || '';
+            jobCard.querySelector('.job-card-title').textContent = job.title || '';
+            jobCard.querySelector('.job-card-type').textContent = job.type || '';
+            fragment.appendChild(jobCard);
+        });
+
+        jobListContainer.appendChild(fragment);
+    };
+
+    // --- 5. FILTERING LOGIC ---
+    const applyFilters = async () => {
+        const city = cityInput.value.trim();
+        const state = stateSelect.value;
+        const postal = postalInput.value.trim();
+        const distance = milesInput.value ? parseInt(milesInput.value, 10) : null;
+
+        let cityState = null;
+        let postalCode = null;
+        let distanceMiles = null;
+
+        if (city && state && distance) {
+            cityState = `${city}, ${state}`;
+            distanceMiles = distance;
+        }
+
+        if (postal && postal.length === 5 && distance) {
+            postalCode = postal;
+            distanceMiles = distance;
+        }
+
+        const filters = {
+            keyword: searchInput.value.trim() || null,
+            city_state: cityState,
+            postal_code: postalCode,
+            distance_miles: distanceMiles,
+            employment_types: getCheckedValues(typeFilterContainer),
+            experience_level: getCheckedValues(levelFilterContainer)[0] || null
+        };
+        await fetchJobs(filters);
+    };
+
+    // --- 6. HYBRID EVENT LISTENERS ---
+
+    textSearchBtn.addEventListener('click', applyFilters);
+
+    [searchInput, cityInput, postalInput, milesInput].forEach(el => {
+        el.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyFilters();
+            }
+        });
+    });
+
+    stateSelect.addEventListener('change', (e) => {
+        if (e.target.value === '') {
+            e.target.classList.add('placeholder');
+        } else {
+            e.target.classList.remove('placeholder');
+        }
+        applyFilters();
+    });
+
+    postalInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    });
+
+    milesInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        let val = parseInt(e.target.value, 10);
+        if (val > 1000) e.target.value = '1000';
+    });
+
+    typeFilterContainer.addEventListener('change', applyFilters);
+    levelFilterContainer.addEventListener('change', applyFilters);
+
+    clearFiltersBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        cityInput.value = '';
+        stateSelect.value = '';
+        stateSelect.classList.add('placeholder');
+        postalInput.value = '';
+        milesInput.value = '';
+        ROOT.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        applyFilters();
+    });
+
+    // --- 7. INITIAL RENDER ---
+    applyFilters();
+})();
+</script>
+<!-- END Circle Widget Body -->
 
 </body>
-
 </html>
