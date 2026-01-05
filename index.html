@@ -265,6 +265,9 @@
 </head>
 <body>
 
+<!-- Load Supabase Client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <!-- BEGIN Circle Widget Body -->
 <div id="jbw-root">
     <div class="app-container">
@@ -312,9 +315,20 @@
 </div>
 <script>
     (function () {
-        let allFetchedJobs = [];
+        const SUPABASE_URL = 'https://woemwmydfdajegiemljg.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable__NX0fZeauvLKYNM6vKGaLA_m9lp6E8Q';
+
+        if (typeof window.supabase === 'undefined') {
+            console.error('Supabase CDN failed to load. Check CSP settings.');
+            document.getElementById('jbw-job-list').innerHTML = 
+                '<p class="no-jobs-found">Error: Unable to load required libraries. Please check your connection.</p>';
+            return; // Exit early if Supabase didn't load
+        }
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        let currentJobs = [];
         const ROOT = document.getElementById('jbw-root');
-        const webAppUrl = 'https://script.google.com/macros/s/AKfycbzL15Kpb0X5HjXTFhyrIHwqQYYu1OanpCY0_GwTt9z3rSIBO0HI_9R8IxAsl_sfCzmN/exec';
 
         // --- 1. DEFINE FUNCTIONAL REQUIREMENTS ---
         const capitalize = (s) => String(s || '').charAt(0).toUpperCase() + String(s || '').slice(1);
@@ -327,64 +341,70 @@
         const getCheckedValues = (container) =>
             Array.from(container.querySelectorAll('input:checked')).map(cb => cb.value);
 
-        function handleJobData(jobs) {
-            if (jobs && !jobs.error && Array.isArray(jobs)) {
-                allFetchedJobs = jobs;
-                applyFilters();
-            } else if (jobs && jobs.error) {
-                const errorMessage = jobs.error;
-                console.error('API Error:', errorMessage);
-                jobListContainer.innerHTML = `<p class="no-jobs-found">Error loading jobs: ${escapeHtml(errorMessage)}</p>`;
-            } else {
-                console.error('Invalid response: expected array of jobs');
-                jobListContainer.innerHTML = `<p class="no-jobs-found">Error: Invalid data format from server.</p>`;
+        // --- SUPABASE FETCH FUNCTION ---
+        async function fetchJobs(filters = {}) {
+            jobListContainer.innerHTML = '<p class="no-jobs-found">Loading jobs...</p>';
+
+            try {
+                console.log('Fetching jobs from Supabase with filters:', filters);
+                
+                // Call the filter_jobs Postgres function via RPC
+                const { data, error } = await supabase.rpc('filter_jobs', {
+                    keyword: filters.keyword || null,
+                    city_state: filters.city_state || null,
+                    postal_code: filters.postal_code || null,
+                    distance_miles: filters.distance_miles || null,
+                    employment_types: filters.employment_types || [],
+                    experience_level: filters.experience_level || null
+                });
+
+                if (error) {
+                    console.error('Supabase error:', error);
+                    jobListContainer.innerHTML = `<p class="no-jobs-found">Error loading jobs: ${escapeHtml(error.message)}</p>`;
+                    return;
+                }
+
+                if (!data || !Array.isArray(data)) {
+                    console.error('Invalid response: expected array of jobs, got:', data);
+                    jobListContainer.innerHTML = '<p class="no-jobs-found">Error: Invalid data format from server.</p>';
+                    return;
+                }
+
+                console.log(`Successfully fetched ${data.length} jobs from Supabase`);
+                
+                // Map function response to widget format
+                currentJobs = data.map(job => ({
+                    id: job.id,
+                    title: job.job_title,
+                    company: job.company,
+                    companyLogo: null, // Not available from filter_jobs function
+                    location: job.location,
+                    type: extractJobType(job.job_title), // Extract from title since not returned
+                    level: job.level,
+                    url: job.url,
+                    description: job.description,
+                    skills: [], // Not available from filter_jobs function
+                    posted_date: job.posted_date
+                }));
+
+                renderJobs(currentJobs);
+
+            } catch (err) {
+                console.error('Fetch error:', err);
+                jobListContainer.innerHTML = `<p class="no-jobs-found">Connection error: ${escapeHtml(err.message)}</p>`;
             }
         }
 
-        function fetchJobs() {
-            jobListContainer.innerHTML = '<p class="no-jobs-found">Loading jobs...</p>';
-
-            const script = document.createElement('script');
-
-            const callbackName = 'handleJobData_jbw_' + Math.random().toString(36).slice(2);
-            window[callbackName] = function (data) {
-                try {
-                    handleJobData(data);
-                } finally {
-                    try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
-                    if (script.parentNode) script.parentNode.removeChild(script);
-                    clearTimeout(timeout);
+        // Helper to extract job type from title (since function doesn't return it separately)
+        function extractJobType(title) {
+            const titleLower = (title || '').toLowerCase();
+            const types = ['contract', 'full-time', 'part-time', 'per-diem', 'prn'];
+            for (const type of types) {
+                if (titleLower.includes(type)) {
+                    return type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-');
                 }
-            };
-
-            script.src = `${webAppUrl}?callback=${callbackName}`;
-
-            const tenSecondTimeout = 10000;
-            const timeout = setTimeout(() => {
-                if (script.parentNode) script.parentNode.removeChild(script);
-                try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
-                handleJobData({ error: 'Request timeout - server took too long to respond.' });
-            }, tenSecondTimeout);
-
-            script.onload = () => {
-                clearTimeout(timeout);
-                if (script.parentNode) script.parentNode.removeChild(script);
-            };
-            script.onerror = () => {
-                clearTimeout(timeout);
-                if (script.parentNode) script.parentNode.removeChild(script);
-                try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
-                handleJobData({ error: 'Failed to connect to the job server.' });
-            };
-
-            try {
-                (ROOT || document.head).appendChild(script);
-            } catch (e) {
-                // CSP or DOM restrictions
-                clearTimeout(timeout);
-                try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
-                handleJobData({ error: 'Embedding platform blocked script injection (CSP).' });
             }
+            return 'Full-time'; // Default
         }
 
         // --- 2. DOM ELEMENT REFERENCES ---
@@ -453,34 +473,24 @@
         };
 
         // --- 4. FILTERING LOGIC ---
-        const applyFilters = () => {
-            let filteredJobs = [...allFetchedJobs];
-
-            const searchTerm = searchInput.value.toLowerCase();
-            const locationTerm = locationInput.value.toLowerCase();
+        // Server-side filtering via filter_jobs RPC function
+        const applyFilters = async () => {
+            const searchTerm = searchInput.value.trim();
+            const locationTerm = locationInput.value.trim();
             const selectedTypes = getCheckedValues(typeFilterContainer);
             const selectedLevels = getCheckedValues(levelFilterContainer);
 
-            if (searchTerm) {
-                filteredJobs = filteredJobs.filter(job =>
-                    job.title.toLowerCase().includes(searchTerm) ||
-                    job.description.toLowerCase().includes(searchTerm) ||
-                    (job.skills && Array.isArray(job.skills) && job.skills.some(skill => skill.toLowerCase().includes(searchTerm)))
-                );
-            }
-            if (locationTerm) {
-                filteredJobs = filteredJobs.filter(job =>
-                    job.location.toLowerCase().includes(locationTerm)
-                );
-            }
-            if (selectedTypes.length > 0) {
-                filteredJobs = filteredJobs.filter(job => selectedTypes.includes(job.type));
-            }
-            if (selectedLevels.length > 0) {
-                filteredJobs = filteredJobs.filter(job => selectedLevels.includes(job.level));
-            }
+            // Build filter object for RPC call
+            const filters = {
+                keyword: searchTerm || null,
+                city_state: locationTerm || null, // Assumes format "City, ST"
+                postal_code: null, // Could add separate input for this
+                distance_miles: null, // Could add separate input for this
+                employment_types: selectedTypes.length > 0 ? selectedTypes : [],
+                experience_level: selectedLevels.length > 0 ? selectedLevels[0] : null // Function takes single value
+            };
 
-            renderJobs(filteredJobs);
+            await fetchJobs(filters);
         };
 
         // --- 6. EVENT LISTENERS ---
