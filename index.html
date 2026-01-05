@@ -13,7 +13,8 @@
         --light-text-color: var(--color-text-light, #717680);
         --border-color: var(--color-border-primary, #e0e0e0);
         --shadow-color: rgba(0, 0, 0, 0.1);
-        --font-family: var(--font-system-ui, InterVariable, system-ui, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
+        /* Simplified variable: Circle Stack -> Nunito -> Sans-Serif */
+        --font-family: var(--font-system-ui, Nunito, system-ui, sans-serif);
     }
 
     #jbw-root,
@@ -24,7 +25,10 @@
     }
 
     #jbw-root {
-        font-family: var(--font-family, inherit);
+        /* Apply the variable and smoothing */
+        font-family: var(--font-family);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
         font-size: 1rem;
         color: inherit;
         background-color: var(--background-color);
@@ -124,17 +128,55 @@
         height: 38px;
     }
 
+    /* 1. Soften the Checkbox labels in the aside */
     .checkbox-group label {
         display: flex;
         align-items: center;
         margin-bottom: 8px;
         cursor: pointer;
-        font-weight: 400;
+        /* UPDATE: Adjust weight and line-height */
+        font-weight: 500;
+        line-height: 1.4;
+        font-size: 0.95rem;
     }
 
+    /* Update the checkbox appearance */
     .checkbox-group input[type="checkbox"] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--border-color);
+        border-radius: 4px; /* Matches your text field rounding */
+        background-color: var(--background-color);
         margin-right: 8px;
-        accent-color: var(--primary-color);
+        cursor: pointer;
+        position: relative;
+        display: grid;
+        place-content: center;
+        transition: background-color 0.1s, border-color 0.1s;
+    }
+
+    /* Define the 'checked' state */
+    .checkbox-group input[type="checkbox"]:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    /* Add the checkmark (optional but recommended for consistency) */
+    .checkbox-group input[type="checkbox"]::before {
+        content: "";
+        width: 10px;
+        height: 10px;
+        transform: scale(0);
+        transition: 120ms transform ease-in-out;
+        box-shadow: inset 1em 1em white;
+        background-color: CanvasText;
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    }
+
+    .checkbox-group input[type="checkbox"]:checked::before {
+        transform: scale(1);
     }
 
     .clear-filters-btn {
@@ -246,12 +288,16 @@
         color: var(--text-color);
     }
 
+    /* 2. Soften the location/type/level text at the bottom of cards */
     .job-card-details {
         display: flex;
         flex-wrap: wrap;
         gap: 15px;
         color: var(--text-color);
-        font-size: 0.9rem;
+        /* UPDATE: Adjust weight and size */
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.4;
     }
 
     .job-card-details span {
