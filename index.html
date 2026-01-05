@@ -305,9 +305,6 @@
 
 <body>
 
-<!-- Load Supabase Client -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <!-- BEGIN Circle Widget Body -->
     <div id="jbw-root">
         <div class="app-container">
@@ -357,52 +354,55 @@
     (function () {
         const SUPABASE_URL = 'https://woemwmydfdajegiemljg.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable__NX0fZeauvLKYNM6vKGaLA_m9lp6E8Q';
-
-        if (typeof window.supabase === 'undefined') {
-            console.error('Supabase CDN failed to load. Check CSP settings.');
-            document.getElementById('jbw-job-list').innerHTML = 
-                '<p class="no-jobs-found">Error: Unable to load required libraries. Please check your connection.</p>';
-            return; // Exit early if Supabase didn't load
-        }
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         let currentJobs = [];
         const ROOT = document.getElementById('jbw-root');
 
-            // --- 1. DEFINE FUNCTIONAL REQUIREMENTS ---
-            const capitalize = (s) => String(s || '').charAt(0).toUpperCase() + String(s || '').slice(1);
-            const escapeHtml = (str) => String(str === undefined || str === null ? '' : str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/\"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-            const getCheckedValues = (container) =>
-                Array.from(container.querySelectorAll('input:checked')).map(cb => cb.value);
+        // --- 1. DEFINE FUNCTIONAL REQUIREMENTS ---
+        const capitalize = (s) => String(s || '').charAt(0).toUpperCase() + String(s || '').slice(1);
+        const escapeHtml = (str) => String(str === undefined || str === null ? '' : str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+        const getCheckedValues = (container) =>
+            Array.from(container.querySelectorAll('input:checked')).map(cb => cb.value);
 
         // --- SUPABASE FETCH FUNCTION ---
+        // Using native fetch() instead of Supabase SDK to avoid CSP issues with CDN
         async function fetchJobs(filters = {}) {
             jobListContainer.innerHTML = '<p class="no-jobs-found">Loading jobs...</p>';
 
             try {
                 console.log('Fetching jobs from Supabase with filters:', filters);
                 
-                // Call the filter_jobs Postgres function via RPC
-                const { data, error } = await supabase.rpc('filter_jobs', {
-                    keyword: filters.keyword || null,
-                    city_state: filters.city_state || null,
-                    postal_code: filters.postal_code || null,
-                    distance_miles: filters.distance_miles || null,
-                    employment_types: filters.employment_types || [],
-                    experience_level: filters.experience_level || null
+                // Call the filter_jobs Postgres function via Supabase REST API
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/filter_jobs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    },
+                    body: JSON.stringify({
+                        keyword: filters.keyword || null,
+                        city_state: filters.city_state || null,
+                        postal_code: filters.postal_code || null,
+                        distance_miles: filters.distance_miles || null,
+                        employment_types: filters.employment_types || [],
+                        experience_level: filters.experience_level || null
+                    })
                 });
 
-                if (error) {
-                    console.error('Supabase error:', error);
-                    jobListContainer.innerHTML = `<p class="no-jobs-found">Error loading jobs: ${escapeHtml(error.message)}</p>`;
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Supabase error:', errorText);
+                    jobListContainer.innerHTML = `<p class="no-jobs-found">Error loading jobs: ${escapeHtml(response.statusText)}</p>`;
                     return;
                 }
+
+                const data = await response.json();
 
                 if (!data || !Array.isArray(data)) {
                     console.error('Invalid response: expected array of jobs, got:', data);
