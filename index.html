@@ -3,6 +3,10 @@
 <head>
 
 <!-- BEGIN Circle Widget Head -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
     :root {
         --primary-color: var(--brand, #007daf);
@@ -25,17 +29,29 @@
     }
 
     #jbw-root {
-        /* Apply the variable and smoothing */
         font-family: var(--font-family);
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
         font-size: 1rem;
         color: inherit;
         background-color: var(--background-color);
+        /* Keep these for visual parity with Circle */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 
+    h1 {
+        font-family: var(--font-family);
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    /* 2. Update the header/p reset at the top */
     #jbw-root h2,
+    #jbw-root h3,
+    #jbw-root h4,
     #jbw-root p {
+        font-family: var(--font-family);
         margin: 0;
     }
 
@@ -44,13 +60,6 @@
         color: var(--light-text-color);
         margin: 0 0 30px 0;
         font-size: 1.1rem;
-    }
-
-    h1 {
-        font-size: 2.5rem;
-        color: var(--primary-color);
-        text-align: center;
-        margin-bottom: 10px;
     }
 
     .app-container {
@@ -288,13 +297,14 @@
         color: var(--text-color);
     }
 
-    /* 2. Soften the location/type/level text at the bottom of cards */
+    /* 2. Soften and make metadata adaptive */
     .job-card-details {
         display: flex;
         flex-wrap: wrap;
         gap: 15px;
         color: var(--text-color);
-        /* UPDATE: Adjust weight and size */
+        /* Adaptive contrast: 80% of current text color */
+        opacity: 0.8;
         font-size: 0.875rem;
         font-weight: 500;
         line-height: 1.4;
@@ -308,7 +318,9 @@
     .job-card-details span:not(:last-child)::after {
         content: '•';
         margin: 0 0 0 8px;
-        color: var(--light-text-color);
+        /* Matches theme text color at 50% opacity for a subtle separator */
+        color: var(--text-color);
+        opacity: 0.5;
     }
 
     .job-card-description {
