@@ -90,10 +90,11 @@
 
     .filter-group h3 {
         font-size: 1.1rem;
-        margin-bottom: 12px;
+        margin: 0 0 16px 0; /* Forced margin-bottom to 16px */
         border-bottom: 1px solid var(--border-color);
         padding-bottom: 8px;
         color: var(--text-color);
+        line-height: 1.2;
     }
 
     .filter-group input[type="text"],
@@ -137,16 +138,21 @@
         height: 38px;
     }
 
-    /* 1. Soften the Checkbox labels in the aside */
+    /* 2. Add a tiny bit of top padding to the container holding the labels */
+    .checkbox-group {
+        padding-top: 8px; /* Creates separation from the underline above it */
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* 3. Ensure the labels themselves aren't cramped vertically */
     .checkbox-group label {
         display: flex;
         align-items: center;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         cursor: pointer;
-        /* UPDATE: Adjust weight and line-height */
         font-weight: 500;
         line-height: 1.4;
-        font-size: 0.95rem;
     }
 
     /* Update the checkbox appearance */
@@ -610,13 +616,27 @@
     };
 
     const getCompanyColor = (name) => {
-        if (!name) return '#999999';
+        if (!name) return '#717680';
+
         let hash = 0;
         for (let i = 0; i < name.length; i++) {
             hash = name.charCodeAt(i) + ((hash << 5) - hash);
         }
-        const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
-        return '#' + '00000'.substring(0, 6 - c.length) + c;
+
+        // Extract RGB components from the hash
+        let r = (hash & 0xFF0000) >> 16;
+        let g = (hash & 0x00FF00) >> 8;
+        let b = (hash & 0x0000FF);
+
+        // Limit to dark colors (0-160)
+        const limit = 160;
+        r = Math.min(r, limit);
+        g = Math.min(g, limit);
+        b = Math.min(b, limit);
+
+        // Convert back to a hex string
+        const toHex = (n) => n.toString(16).padStart(2, '0');
+        return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
     };
 
     const getLogoUrl = (companyName) => {
