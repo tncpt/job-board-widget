@@ -17,7 +17,6 @@
         --light-text-color: var(--color-text-light, #717680);
         --border-color: var(--color-border-primary, #e0e0e0);
         --shadow-color: rgba(0, 0, 0, 0.1);
-        /* Simplified variable: Circle Stack -> Nunito -> Sans-Serif */
         --font-family: var(--font-system-ui, Nunito, system-ui, sans-serif);
     }
 
@@ -33,7 +32,6 @@
         font-size: 1rem;
         color: inherit;
         background-color: var(--background-color);
-        /* Keep these for visual parity with Circle */
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
@@ -46,7 +44,6 @@
         margin-bottom: 10px;
     }
 
-    /* 2. Update the header/p reset at the top */
     #jbw-root h2,
     #jbw-root h3,
     #jbw-root h4,
@@ -90,7 +87,7 @@
 
     .filter-group h3 {
         font-size: 1.1rem;
-        margin: 0 0 16px 0; /* Forced margin-bottom to 16px */
+        margin: 0 0 16px 0;
         border-bottom: 1px solid var(--border-color);
         padding-bottom: 8px;
         color: var(--text-color);
@@ -138,14 +135,12 @@
         height: 38px;
     }
 
-    /* 2. Add a tiny bit of top padding to the container holding the labels */
     .checkbox-group {
-        padding-top: 8px; /* Creates separation from the underline above it */
+        padding-top: 8px;
         display: flex;
         flex-direction: column;
     }
 
-    /* 3. Ensure the labels themselves aren't cramped vertically */
     .checkbox-group label {
         display: flex;
         align-items: center;
@@ -155,42 +150,64 @@
         line-height: 1.4;
     }
 
-    /* Update the checkbox appearance */
-    .checkbox-group input[type="checkbox"] {
+    .checkbox-group label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        cursor: pointer;
+        font-weight: 500;
+        line-height: 1;
+        color: var(--text-color);
+    }
+
+    .checkbox-group input[type="checkbox"],
+    .checkbox-group input[type="radio"] {
         appearance: none;
         -webkit-appearance: none;
         width: 18px;
         height: 18px;
         border: 2px solid var(--border-color);
-        border-radius: 4px; /* Matches your text field rounding */
         background-color: var(--background-color);
-        margin-right: 8px;
+        margin: 0 8px 0 0;
         cursor: pointer;
         position: relative;
         display: grid;
         place-content: center;
         transition: background-color 0.1s, border-color 0.1s;
+        flex-shrink: 0;
     }
 
-    /* Define the 'checked' state */
-    .checkbox-group input[type="checkbox"]:checked {
+    .checkbox-group input[type="checkbox"] { border-radius: 4px; }
+    .checkbox-group input[type="radio"] { border-radius: 50%; }
+
+    .checkbox-group input[type="checkbox"]:checked,
+    .checkbox-group input[type="radio"]:checked {
         background-color: var(--primary-color);
         border-color: var(--primary-color);
     }
 
-    /* Add the checkmark (optional but recommended for consistency) */
-    .checkbox-group input[type="checkbox"]::before {
+    .checkbox-group input[type="checkbox"]::before,
+    .checkbox-group input[type="radio"]::before {
         content: "";
-        width: 10px;
-        height: 10px;
         transform: scale(0);
         transition: 120ms transform ease-in-out;
-        box-shadow: inset 1em 1em white;
-        background-color: CanvasText;
+        background-color: white;
+    }
+
+    .checkbox-group input[type="checkbox"]::before {
+        width: 10px;
+        height: 10px;
         clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
     }
 
-    .checkbox-group input[type="checkbox"]:checked::before {
+    .checkbox-group input[type="radio"]::before {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .checkbox-group input[type="checkbox"]:checked::before,
+    .checkbox-group input[type="radio"]:checked::before {
         transform: scale(1);
     }
 
@@ -303,13 +320,11 @@
         color: var(--text-color);
     }
 
-    /* 2. Soften and make metadata adaptive */
     .job-card-details {
         display: flex;
         flex-wrap: wrap;
         gap: 15px;
         color: var(--text-color);
-        /* Adaptive contrast: 80% of current text color */
         opacity: 0.8;
         font-size: 0.875rem;
         font-weight: 500;
@@ -324,7 +339,6 @@
     .job-card-details span:not(:last-child)::after {
         content: '•';
         margin: 0 0 0 8px;
-        /* Matches theme text color at 50% opacity for a subtle separator */
         color: var(--text-color);
         opacity: 0.5;
     }
@@ -492,8 +506,8 @@
                 <div class="filter-group">
                     <h3>Experience Level</h3>
                     <div class="checkbox-group" id="jbw-level-filter">
-                        <label><input type="checkbox" value="entry"> Entry</label>
-                        <label><input type="checkbox" value="experienced"> Mid–Sr.</label>
+                        <label><input type="radio" name="experience_level" value="entry"> Entry</label>
+                        <label><input type="radio" name="experience_level" value="experienced"> Mid–Sr.</label>
                     </div>
                 </div>
 
@@ -718,19 +732,21 @@
             distanceMiles = distance;
         }
 
+        const selectedLevel = levelFilterContainer.querySelector('input[name="experience_level"]:checked');
+
         const filters = {
             keyword: searchInput.value.trim() || null,
             city_state: cityState,
             postal_code: postalCode,
             distance_miles: distanceMiles,
             employment_types: getCheckedValues(typeFilterContainer),
-            experience_level: getCheckedValues(levelFilterContainer)[0] || null
+            experience_level: selectedLevel ? selectedLevel.value : null 
         };
+
         await fetchJobs(filters);
     };
 
     // --- 6. HYBRID EVENT LISTENERS ---
-
     textSearchBtn.addEventListener('click', applyFilters);
 
     [searchInput, cityInput, postalInput, milesInput].forEach(el => {
@@ -771,7 +787,8 @@
         stateSelect.classList.add('placeholder');
         postalInput.value = '';
         milesInput.value = '';
-        ROOT.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        ROOT.querySelectorAll('input[type="checkbox"], input[type="radio"]')
+            .forEach(el => el.checked = false);
         applyFilters();
     });
 
