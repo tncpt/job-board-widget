@@ -21,6 +21,11 @@
         --alert-red: #e51235;
     }
 
+    #jbw-root .jbw-input-error {
+        border: 2px solid var(--alert-red) !important;
+        outline: none;
+    }
+
     #jbw-root,
     #jbw-root *,
     #jbw-root *::before,
@@ -224,6 +229,101 @@
         transform: scale(1);
     }
 
+    .jbw-dropdown-trigger {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: white;
+        text-align: left;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1rem;
+        color: var(--text-color);
+        font-family: var(--font-family);
+    }
+
+    .jbw-dropdown-trigger::after {
+        content: '▼';
+        font-size: 0.7rem;
+        color: var(--light-text-color);
+    }
+
+    .jbw-dropdown-menu {
+        max-height: 250px;
+        overflow-y: auto;
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 0 0 4px 4px;
+        z-index: 201;
+        padding: 12px;
+        box-shadow: 0 4px 12px var(--shadow-color);
+    }
+
+    .jbw-dropdown-trigger.placeholder {
+        color: var(--light-text-color);
+    }
+
+    .jbw-dropdown-menu.active {
+        display: block;
+    }
+
+    .jbw-dropdown-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .jbw-dropdown-wrapper.is-active {
+        z-index: 200;
+    }
+
+    .jbw-dropdown-wrapper.open-up .jbw-dropdown-menu {
+        top: auto;
+        bottom: 100%;
+        border-radius: 4px 4px 0 0;
+        box-shadow: 0 -4px 12px var(--shadow-color);
+        margin-bottom: 2px; /* Small gap from trigger */
+    }
+
+    .jbw-tag-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .jbw-tag {
+        background: var(--primary-color);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .jbw-tag-remove {
+        cursor: pointer;
+        font-size: 1.1rem;
+        line-height: 1;
+        opacity: 0.7;
+    }
+
+    .jbw-tag-remove:hover {
+        opacity: 1;
+    }
+
     #jbw-root .clear-filters-btn {
         width: 100%;
         padding: 12px;
@@ -252,7 +352,7 @@
         font-weight: bold;
         color: var(--primary-color);
         text-decoration: none;
-        padding-top: 8px;
+        padding-top: 14px;
         cursor: pointer;
     }
 
@@ -536,23 +636,35 @@
 
                     <div class="filter-group">
                         <h3>Job Type</h3>
-                        <div class="checkbox-group" id="jbw-type-filter">
-                            <label><input type="checkbox" value="Contract"> Contract</label>
-                            <label><input type="checkbox" value="Full-time"> Full-time</label>
-                            <label><input type="checkbox" value="Part-time"> Part-time</label>
-                            <label><input type="checkbox" value="Per-diem"> Per-diem</label>
-                            <label><input type="checkbox" value="PRN"> PRN</label>
+                        <div class="jbw-dropdown-wrapper" id="jt-wrapper">
+                            <button type="button" class="jbw-dropdown-trigger placeholder" id="jt-trigger">Select Job Type...</button>
+                            <div class="jbw-dropdown-menu" id="jt-menu">
+                                <div class="checkbox-group" id="jbw-type-filter">
+                                    <label><input type="checkbox" value="Contract"> Contract</label>
+                                    <label><input type="checkbox" value="Full-time"> Full-time</label>
+                                    <label><input type="checkbox" value="Part-time"> Part-time</label>
+                                    <label><input type="checkbox" value="Per-diem"> Per-diem</label>
+                                    <label><input type="checkbox" value="PRN"> PRN</label>
+                                </div>
+                            </div>
                         </div>
+                        <div class="jbw-tag-container" id="jt-tags-container"></div>
                     </div>
 
                     <div class="filter-group" style="margin-bottom: 4px;">
                         <h3>Workplace</h3>
-                        <div class="checkbox-group" id="jbw-workplace-filter">
-                            <label><input type="checkbox" value="Remote"> Remote</label>
-                            <label><input type="checkbox" value="On-site"> On-site</label>
-                            <label><input type="checkbox" value="Hybrid"> Hybrid</label>
-                            <label><input type="checkbox" value="Field"> Field</label>
+                        <div class="jbw-dropdown-wrapper" id="wp-wrapper">
+                            <button type="button" class="jbw-dropdown-trigger placeholder" id="wp-trigger">Select Workplace...</button>
+                            <div class="jbw-dropdown-menu" id="wp-menu">
+                                <div class="checkbox-group" id="jbw-workplace-filter">
+                                    <label><input type="checkbox" value="Remote"> Remote</label>
+                                    <label><input type="checkbox" value="On-site"> On-site</label>
+                                    <label><input type="checkbox" value="Hybrid"> Hybrid</label>
+                                    <label><input type="checkbox" value="Field"> Field</label>
+                                </div>
+                            </div>
                         </div>
+                        <div class="jbw-tag-container" id="wp-tags-container"></div>
                     </div>
 
                     <a href="#" id="jbw-clear-filters-link" class="clear-filters-link">Clear All Filters</a>
@@ -571,6 +683,7 @@
         const SUPABASE_ANON_KEY = 'sb_publishable__NX0fZeauvLKYNM6vKGaLA_m9lp6E8Q';
 
         let currentJobs = [];
+        let fetchController = null;
         const ROOT = document.getElementById('jbw-root');
 
         // --- 1. DEFINE FUNCTIONAL REQUIREMENTS ---
@@ -592,11 +705,18 @@
 
         // --- SUPABASE FETCH FUNCTION ---
         async function fetchJobs(filters = {}) {
+            if (fetchController) {
+                fetchController.abort();
+            }
+
+            fetchController = new AbortController();
             jobListContainer.innerHTML = '<p class="no-jobs-found">Loading jobs...</p>';
 
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/filter_jobs`, {
                     method: 'POST',
+                    // Attach the signal to the fetch request
+                    signal: fetchController.signal,
                     headers: {
                         'Content-Type': 'application/json',
                         'apikey': SUPABASE_ANON_KEY,
@@ -614,35 +734,27 @@
                 });
 
                 if (!response.ok) {
-                    const errorText = await response.text();
                     jobListContainer.innerHTML = `<p class="no-jobs-found">Error: ${escapeHtml(response.statusText)}</p>`;
                     return;
                 }
 
                 const data = await response.json();
-                if (!data || !Array.isArray(data)) {
-                    jobListContainer.innerHTML = '<p class="no-jobs-found">Error: Invalid data format.</p>';
-                    return;
-                }
-
                 currentJobs = data.map(job => ({
                     id: job.id,
                     title: job.job_title || job.title,
                     company: job.company,
-                    companyLogo: null,
                     location: job.location,
                     type: extractJobType(job.job_title || job.title),
                     level: job.level,
                     url: job.url,
                     description: job.description,
-                    skills: [],
                     posted_date: job.posted_date || job.nc101_share_date
                 }));
 
                 renderJobs(currentJobs);
-
             } catch (err) {
-                console.error('Fetch error:', err);
+                if (err.name === 'AbortError') return;
+
                 document.getElementById('jbw-job-list').innerHTML = `<p class="no-jobs-found">Connection error: ${escapeHtml(err.message)}</p>`;
             }
         }
@@ -658,75 +770,9 @@
             return 'Full-time';
         }
 
-        // --- 2. DOM ELEMENT REFERENCES ---
-        const cityInput = document.getElementById('jbw-city-input');
-        const clearFiltersBtn = document.getElementById('jbw-clear-filters-link');
-        const jobListContainer = document.getElementById('jbw-job-list');
-        const levelFilterContainer = document.getElementById('jbw-level-filter');
-        const milesInput = document.getElementById('jbw-miles-input');
-        const postalInput = document.getElementById('jbw-postal-input');
-        const searchInput = document.getElementById('jbw-search-input');
-        const stateSelect = document.getElementById('jbw-state-select');
-        const textSearchBtn = document.getElementById('jbw-apply-text-filters');
-        const typeFilterContainer = document.getElementById('jbw-type-filter');
-        const workplaceFilterContainer = document.getElementById('jbw-workplace-filter');
+        // --- 2. US STATES DATA & DROPDOWN LOGIC ---
+        const US_STATES = [['', 'Select a State...'],['AL', 'Alabama'],['AK', 'Alaska'],['AZ', 'Arizona'],['AR', 'Arkansas'],['CA', 'California'],['CO', 'Colorado'],['CT', 'Connecticut'],['DE', 'Delaware'],['DC', 'District of Columbia'],['FL', 'Florida'],['GA', 'Georgia'],['HI', 'Hawaii'],['ID', 'Idaho'],['IL', 'Illinois'],['IN', 'Indiana'],['IA', 'Iowa'],['KS', 'Kansas'],['KY', 'Kentucky'],['LA', 'Louisiana'],['ME', 'Maine'],['MD', 'Maryland'],['MA', 'Massachusetts'],['MI', 'Michigan'],['MN', 'Minnesota'],['MS', 'Mississippi'],['MO', 'Missouri'],['MT', 'Montana'],['NE', 'Nebraska'],['NV', 'Nevada'],['NH', 'New Hampshire'],['NJ', 'New Jersey'],['NM', 'New Mexico'],['NY', 'New York'],['NC', 'North Carolina'],['ND', 'North Dakota'],['OH', 'Ohio'],['OK', 'Oklahoma'],['OR', 'Oregon'],['PA', 'Pennsylvania'],['RI', 'Rhode Island'],['SC', 'South Carolina'],['SD', 'South Dakota'],['TN', 'Tennessee'],['TX', 'Texas'],['UT', 'Utah'],['VT', 'Vermont'],['VA', 'Virginia'],['WA', 'Washington'],['WV', 'West Virginia'],['WI', 'Wisconsin'],['WY', 'Wyoming']];
 
-        const US_STATES = [
-            ['', 'Select a State...'],
-            ['AL', 'Alabama'],
-            ['AK', 'Alaska'],
-            ['AZ', 'Arizona'],
-            ['AR', 'Arkansas'],
-            ['CA', 'California'],
-            ['CO', 'Colorado'],
-            ['CT', 'Connecticut'],
-            ['DE', 'Delaware'],
-            ['DC', 'District of Columbia'],
-            ['FL', 'Florida'],
-            ['GA', 'Georgia'],
-            ['HI', 'Hawaii'],
-            ['ID', 'Idaho'],
-            ['IL', 'Illinois'],
-            ['IN', 'Indiana'],
-            ['IA', 'Iowa'],
-            ['KS', 'Kansas'],
-            ['KY', 'Kentucky'],
-            ['LA', 'Louisiana'],
-            ['ME', 'Maine'],
-            ['MD', 'Maryland'],
-            ['MA', 'Massachusetts'],
-            ['MI', 'Michigan'],
-            ['MN', 'Minnesota'],
-            ['MS', 'Mississippi'],
-            ['MO', 'Missouri'],
-            ['MT', 'Montana'],
-            ['NE', 'Nebraska'],
-            ['NV', 'Nevada'],
-            ['NH', 'New Hampshire'],
-            ['NJ', 'New Jersey'],
-            ['NM', 'New Mexico'],
-            ['NY', 'New York'],
-            ['NC', 'North Carolina'],
-            ['ND', 'North Dakota'],
-            ['OH', 'Ohio'],
-            ['OK', 'Oklahoma'],
-            ['OR', 'Oregon'],
-            ['PA', 'Pennsylvania'],
-            ['RI', 'Rhode Island'],
-            ['SC', 'South Carolina'],
-            ['SD', 'South Dakota'],
-            ['TN', 'Tennessee'],
-            ['TX', 'Texas'],
-            ['UT', 'Utah'],
-            ['VT', 'Vermont'],
-            ['VA', 'Virginia'],
-            ['WA', 'Washington'],
-            ['WV', 'West Virginia'],
-            ['WI', 'Wisconsin'],
-            ['WY', 'Wyoming']
-        ];
-
-        // Populate state dropdown
         function populateStateDropdown() {
             if (!stateSelect) return;
             stateSelect.innerHTML = '';
@@ -734,45 +780,53 @@
                 const opt = document.createElement('option');
                 opt.value = code;
                 opt.textContent = name;
-                if (code === '') opt.selected = true;
                 stateSelect.appendChild(opt);
             });
         }
 
+        // --- 3. CENTRALIZED DOM REFERENCES (Refactor #2) ---
+        const idSuffixes = [
+            'city-input', 'clear-filters-link', 'job-list', 'level-filter',
+            'miles-input', 'postal-input', 'search-input', 'state-select',
+            'apply-text-filters', 'type-filter', 'workplace-filter'
+        ];
+
+        const els = idSuffixes.reduce((acc, suffix) => {
+            const camelKey = suffix.replace(/-([a-z])/g, g => g[1].toUpperCase())
+                                .replace('Link', 'Btn');
+            acc[camelKey] = document.getElementById(`jbw-${suffix}`);
+            return acc;
+        }, {});
+
+        const {
+            cityInput, clearFiltersBtn, jobList: jobListContainer, levelFilter: levelFilterContainer,
+            milesInput, postalInput, searchInput, stateSelect,
+            applyTextFilters: textSearchBtn, typeFilter: typeFilterContainer,
+            workplaceFilter: workplaceFilterContainer
+        } = els;
+
+        // Now these calls will work because stateSelect and the function are both defined
         populateStateDropdown();
+
+        stateSelect.addEventListener('change', () => {
+            stateSelect.classList.toggle('placeholder', stateSelect.value === '');
+        });
+
 
         // --- 3. LOGO & UTILITIES ---
         const LOGO_DEV_PUBLIC_KEY = 'pk_placeholder';
-
         const getInitials = (name) => {
             if (!name) return '?';
             const parts = name.trim().split(/\s+/);
-            if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            return parts.length === 1 ? parts[0].substring(0, 2).toUpperCase() : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
         };
 
         const getCompanyColor = (name) => {
             if (!name) return '#717680';
-
             let hash = 0;
-            for (let i = 0; i < name.length; i++) {
-                hash = name.charCodeAt(i) + ((hash << 5) - hash);
-            }
-
-            // Extract RGB components from the hash
-            let r = (hash & 0xFF0000) >> 16;
-            let g = (hash & 0x00FF00) >> 8;
-            let b = (hash & 0x0000FF);
-
-            // Limit to dark colors (0-160)
-            const limit = 160;
-            r = Math.min(r, limit);
-            g = Math.min(g, limit);
-            b = Math.min(b, limit);
-
-            // Convert back to a hex string
-            const toHex = (n) => n.toString(16).padStart(2, '0');
-            return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+            for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            let r = Math.min((hash & 0xFF0000) >> 16, 160), g = Math.min((hash & 0x00FF00) >> 8, 160), b = Math.min((hash & 0x0000FF), 160);
+            return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
         };
 
         const getLogoUrl = (companyName) => {
@@ -784,25 +838,16 @@
         // --- 4. RENDERING LOGIC ---
         const renderJobs = (jobsToRender) => {
             jobListContainer.innerHTML = '';
-
             if (jobsToRender.length === 0) {
                 jobListContainer.innerHTML = '<p class="no-jobs-found">No jobs found matching your criteria.</p>';
                 return;
             }
-
             const fragment = document.createDocumentFragment();
-
             jobsToRender.forEach(job => {
                 const jobCard = document.createElement('a');
                 jobCard.classList.add('job-card');
-                jobCard.href = job.url;
-                jobCard.rel = "noopener noreferrer";
-                jobCard.target = "_blank";
-
-                const companyName = job.company || 'Unknown';
-                const logoUrl = getLogoUrl(companyName);
-                const initials = getInitials(companyName);
-                const bgColor = getCompanyColor(companyName);
+                jobCard.href = job.url; jobCard.target = "_blank";
+                const companyName = job.company || 'Unknown', logoUrl = getLogoUrl(companyName), initials = getInitials(companyName), bgColor = getCompanyColor(companyName);
 
                 jobCard.innerHTML = `
                     <div class="job-card-header">
@@ -810,10 +855,7 @@
                             <div class="logo-fallback" style="background-color: ${bgColor};">${initials}</div>
                             <img src="${logoUrl}" alt="${escapeHtml(companyName)} logo" onerror="this.style.display='none'">
                         </div>
-                        <div>
-                            <h2 class="job-card-title"></h2>
-                            <p class="job-card-company"></p>
-                        </div>
+                        <div><h2 class="job-card-title"></h2><p class="job-card-company"></p></div>
                     </div>
                     <div class="job-card-details">
                         <span>📍 <span class="job-card-location"></span></span>
@@ -821,7 +863,6 @@
                         <span class="job-card-level"></span>
                     </div>
                 `;
-
                 jobCard.querySelector('.job-card-company').textContent = companyName;
                 jobCard.querySelector('.job-card-level').textContent = formatLevel(job.level || '');
                 jobCard.querySelector('.job-card-location').textContent = job.location || '';
@@ -829,58 +870,44 @@
                 jobCard.querySelector('.job-card-type').textContent = job.type || '';
                 fragment.appendChild(jobCard);
             });
-
             jobListContainer.appendChild(fragment);
         };
 
         // --- 5. FILTERING LOGIC ---
-        function isValidStateAbbr(abbr) {
-            return US_STATES.some(([code]) => code === abbr);
-        }
-
-        function showFilterError(msg) {
-            const errorDiv = document.getElementById('jbw-filter-error');
-            errorDiv.textContent = msg;
-            errorDiv.classList.add('visible');
-        }
-
-        function hideFilterError() {
-            const errorDiv = document.getElementById('jbw-filter-error');
-            errorDiv.textContent = '';
-            errorDiv.classList.remove('visible');
-        }
-
         const applyFilters = async () => {
             const city = cityInput.value.trim();
             const state = stateSelect.value;
             const postal = postalInput.value.trim();
             const distance = milesInput.value ? parseInt(milesInput.value, 10) : null;
+            const errorEl = document.getElementById('jbw-filter-error');
 
-            if (state && !isValidStateAbbr(state)) {
-                showFilterError('Please select a valid state.');
+            errorEl.classList.remove('visible');
+            cityInput.classList.remove('jbw-input-error');
+            stateSelect.classList.remove('jbw-input-error');
+            postalInput.classList.remove('jbw-input-error');
+
+            if (city && !state) {
+                errorEl.textContent = 'Please select a state for the city provided.';
+                errorEl.classList.add('visible');
+                stateSelect.classList.add('jbw-input-error');
                 return;
             }
 
-            if (city && city.length > 40) {
-                showFilterError('City name must be 40 characters or less.');
+            if (state && !city) {
+                errorEl.textContent = 'Please enter a city for the state selected.';
+                errorEl.classList.add('visible');
+                cityInput.classList.add('jbw-input-error');
                 return;
             }
 
-            hideFilterError();
-
-            let cityState = null;
-            let postalCode = null;
-            let distanceMiles = null;
-
-            if (city && state && distance) {
-                cityState = `${city}, ${state}`;
-                distanceMiles = distance;
+            if ((city || state || postal) && !distance) {
+                errorEl.textContent = 'Please provide a distance for location search.';
+                errorEl.classList.add('visible');
+                return;
             }
 
-            if (postal && postal.length === 5 && distance) {
-                postalCode = postal;
-                distanceMiles = distance;
-            }
+            let cityState = (city && state) ? `${city}, ${state}` : null;
+            let postalCode = (postal && postal.length === 5) ? postal : null;
 
             const selectedLevel = levelFilterContainer.querySelector('input[name="experience_level"]:checked');
 
@@ -888,7 +915,7 @@
                 keyword: searchInput.value.trim() || null,
                 city_state: cityState,
                 postal_code: postalCode,
-                distance_miles: distanceMiles,
+                distance_miles: (cityState || postalCode) ? distance : null,
                 employment_types: getCheckedValues(typeFilterContainer),
                 experience_level: selectedLevel ? selectedLevel.value : null,
                 workplace_types: getCheckedValues(workplaceFilterContainer)
@@ -897,53 +924,120 @@
             await fetchJobs(filters);
         };
 
-        // --- 6. HYBRID EVENT LISTENERS ---
-        textSearchBtn.addEventListener('click', applyFilters);
+        // --- 6. DRY MULTI-SELECT INITIALIZATION ---
+        const activeDropdowns = [];
 
+        function initMultiSelect(prefix, container) {
+            const trigger = document.getElementById(`${prefix}-trigger`);
+            const menu = document.getElementById(`${prefix}-menu`);
+            const wrapper = document.getElementById(`${prefix}-wrapper`);
+            const tagsContainer = document.getElementById(`${prefix}-tags-container`);
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+
+            const renderTags = () => {
+                tagsContainer.innerHTML = '';
+                let count = 0;
+                checkboxes.forEach(cb => {
+                    if (cb.checked) {
+                        count++;
+                        const tag = document.createElement('div');
+                        tag.className = 'jbw-tag';
+                        tag.innerHTML = `${cb.value}<span class="jbw-tag-remove" data-value="${cb.value}">×</span>`;
+                        tagsContainer.appendChild(tag);
+                    }
+                });
+                trigger.classList.toggle('placeholder', count === 0);
+            };
+
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+
+                const filterPanel = document.getElementById('filter-panel');
+
+                activeDropdowns.forEach(d => {
+                    if (d.wrapper !== wrapper) {
+                        d.menu.classList.remove('active');
+                        d.wrapper.classList.remove('is-active', 'open-up');
+                    }
+                });
+
+                const triggerRect = trigger.getBoundingClientRect();
+                const panelRect = filterPanel.getBoundingClientRect();
+                const menuHeight = 220;
+                const spaceBelowInPanel = panelRect.bottom - triggerRect.bottom;
+                const spaceBelowWindow = window.innerHeight - triggerRect.bottom;
+
+                if (spaceBelowInPanel < menuHeight || spaceBelowWindow < menuHeight) {
+                    wrapper.classList.add('open-up');
+                } else {
+                    wrapper.classList.remove('open-up');
+                }
+
+                const isActive = menu.classList.toggle('active');
+                wrapper.classList.toggle('is-active', isActive);
+
+                if (isActive && !wrapper.classList.contains('open-up')) {
+                    setTimeout(() => {
+                        menu.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }, 50);
+                }
+            });
+
+            tagsContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('jbw-tag-remove')) {
+                    const val = e.target.getAttribute('data-value');
+                    const cb = Array.from(checkboxes).find(c => c.value === val);
+                    if (cb) { cb.checked = false; renderTags(); }
+                }
+            });
+
+            checkboxes.forEach(cb => cb.addEventListener('change', renderTags));
+            
+            // Store reference for the clear button
+            activeDropdowns.push({ wrapper, menu, renderTags });
+            renderTags();
+        }
+
+        // Initialize both dropdowns
+        initMultiSelect('wp', workplaceFilterContainer);
+        initMultiSelect('jt', typeFilterContainer);
+
+        // --- 7. EVENT LISTENERS ---
+        textSearchBtn.addEventListener('click', applyFilters);
         [searchInput, cityInput, postalInput, milesInput].forEach(el => {
-            el.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    applyFilters();
+            el.addEventListener('keydown', (e) => { if (e.key === 'Enter') applyFilters(); });
+        });
+
+        document.addEventListener('click', (e) => {
+            activeDropdowns.forEach(d => {
+                if (!d.wrapper.contains(e.target)) {
+                    d.menu.classList.remove('active');
+                    d.wrapper.classList.remove('is-active'); // ensures z-index reset.
                 }
             });
         });
 
-        stateSelect.addEventListener('change', (e) => {
-            if (e.target.value === '') {
-                e.target.classList.add('placeholder');
-            } else {
-                e.target.classList.remove('placeholder');
-            }
-        });
-
-        postalInput.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/[^0-9]/g, '');
-        });
-
-        milesInput.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/[^0-9]/g, '');
-            let val = parseInt(e.target.value, 10);
-            if (val > 12500) e.target.value = '12500';
-            if (val < 1) e.target.value = '1';
-        });
-
-        // No auto-search on filter changes
-
         clearFiltersBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            searchInput.value = '';
-            cityInput.value = '';
+
+            searchInput.value = ''; 
+            cityInput.value = ''; 
             stateSelect.value = '';
             stateSelect.classList.add('placeholder');
-            postalInput.value = '';
+            postalInput.value = ''; 
             milesInput.value = '30';
-            ROOT.querySelectorAll('input[type="checkbox"], input[type="radio"]')
-                .forEach(el => el.checked = false);
-            hideFilterError();
+
+            const errorEl = document.getElementById('jbw-filter-error');
+            if (errorEl) errorEl.classList.remove('visible');
+            [cityInput, stateSelect, postalInput].forEach(el => el.classList.remove('jbw-input-error'));
+
+            ROOT.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(el => el.checked = false);
+
+            activeDropdowns.forEach(d => d.renderTags());
+
+            applyFilters();
         });
 
-        // --- 7. INITIAL RENDER ---
         applyFilters();
     })();
 </script>
