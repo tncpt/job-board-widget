@@ -18,6 +18,7 @@
         --border-color: var(--color-border-primary, #e0e0e0);
         --shadow-color: rgba(0, 0, 0, 0.1);
         --font-family: var(--font-system-ui, Nunito, system-ui, sans-serif);
+        --alert-red: #e51235;
     }
 
     #jbw-root,
@@ -257,6 +258,20 @@
         text-decoration: underline;
     }
 
+    #jbw-filter-error {
+        display: none;
+        color: var(--alert-red);
+        background: none;
+        font-size: 0.98rem;
+        margin: 0 0 10px 0;
+        padding: 0;
+        text-align: left;
+    }
+
+    #jbw-filter-error.visible {
+        display: block;
+    }
+
     #jbw-root .job-list {
         flex: 1;
     }
@@ -419,6 +434,7 @@
 
         #jbw-root .job-board-layout {
             flex-direction: column;
+            align-items: stretch;
         }
 
         #jbw-root .filter-panel {
@@ -426,6 +442,34 @@
             width: 100%;
             margin-bottom: 0px;
             flex: none;
+        }
+
+        #jbw-root .job-list {
+            width: 100%;
+        }
+
+        #jbw-root .job-card-header > div { min-width: 0; }
+        #jbw-root .job-card-title,
+        #jbw-root .job-card-company,
+        #jbw-root .job-card-details,
+        #jbw-root .job-card-description { overflow-wrap: anywhere; }
+
+        #jbw-root .job-card-title,
+        #jbw-root .job-card-description {
+            display: -webkit-box;
+            line-clamp: 2;
+            overflow: hidden;
+            -webkit-box-orient: vertical;
+        }
+
+        #jbw-root .job-card-title {
+            line-clamp: 2;
+            -webkit-line-clamp: 2;
+        }
+
+        #jbw-root .job-card-description {
+            line-clamp: 4;
+            -webkit-line-clamp: 4;
         }
     }
 </style>
@@ -440,7 +484,7 @@
         <h1>Non-Clinical Jobs</h1>
         <p class="app-subtitle">
             🔥 Never miss a posting from your dream employers! Simply
-            <a href="https://nonclinical.notion.site/17d2a7006bfc80d99059cad5bac1ad04">request companies here.</a>
+            <a href="https://nonclinical.notion.site/17d2a7006bfc80d99059cad5bac1ad04" target="_blank">request companies here.</a>
         </p>
 
         <div class="job-board-layout">
@@ -458,9 +502,7 @@
 
                     <div class="filter-group">
                         <h3>State</h3>
-                        <select id="jbw-state-select" class="placeholder">
-                            <!-- state options stay the same -->
-                        </select>
+                        <select id="jbw-state-select" class="placeholder"></select>
                     </div>
 
                     <div class="filter-group">
@@ -471,13 +513,23 @@
 
                     <div class="filter-group" style="margin-bottom: 0;">
                         <h3>Distance (miles)</h3>
-                        <input type="number" id="jbw-miles-input" value="30" min="5" max="12500" step="1">
+                        <input type="number" id="jbw-miles-input" value="30" min="1" max="12500" step="1">
                     </div>
 
+                    <div id="jbw-filter-error"></div>
                     <button id="jbw-apply-text-filters" class="clear-filters-btn" style="margin-bottom: 0;">Search Jobs</button>
                 </div>
 
                 <div class="filter-panel-bottom">
+                    <div class="filter-group">
+                        <h3>Experience Level</h3>
+                        <div class="checkbox-group" id="jbw-level-filter">
+                            <label><input type="radio" name="experience_level" value="entry"> Starter</label>
+                            <label><input type="radio" name="experience_level" value="experienced">
+                                Experienced</label>
+                        </div>
+                    </div>
+
                     <div class="filter-group">
                         <h3>Job Type</h3>
                         <div class="checkbox-group" id="jbw-type-filter">
@@ -489,16 +541,17 @@
                         </div>
                     </div>
 
-                    <div class="filter-group" style="margin-bottom: 0;">
-                        <h3>Experience Level</h3>
-                        <div class="checkbox-group" id="jbw-level-filter">
-                            <label><input type="radio" name="experience_level" value="entry"> Starter</label>
-                            <label><input type="radio" name="experience_level" value="experienced">
-                                Experienced</label>
+                    <div class="filter-group" style="margin-bottom: 4px;">
+                        <h3>Workplace</h3>
+                        <div class="checkbox-group" id="jbw-workplace-filter">
+                            <label><input type="checkbox" value="Remote"> Remote</label>
+                            <label><input type="checkbox" value="On-site"> On-site</label>
+                            <label><input type="checkbox" value="Hybrid"> Hybrid</label>
+                            <label><input type="checkbox" value="Field"> Field</label>
                         </div>
                     </div>
 
-                    <a href="#" id="jbw-clear-filters-btn" class="clear-filters-link">Clear All Filters</a>
+                    <a href="#" id="jbw-clear-filters-link" class="clear-filters-link">Clear All Filters</a>
                 </div>
             </aside>
 
@@ -551,7 +604,8 @@
                         postal_code: filters.postal_code || null,
                         distance_miles: filters.distance_miles || null,
                         employment_types: filters.employment_types || [],
-                        experience_level: filters.experience_level || null
+                        experience_level: filters.experience_level || null,
+                        workplace_types: filters.workplace_types || []
                     })
                 });
 
@@ -601,16 +655,87 @@
         }
 
         // --- 2. DOM ELEMENT REFERENCES ---
-        const clearFiltersBtn = document.getElementById('jbw-clear-filters-btn');
+        const cityInput = document.getElementById('jbw-city-input');
+        const clearFiltersBtn = document.getElementById('jbw-clear-filters-link');
         const jobListContainer = document.getElementById('jbw-job-list');
         const levelFilterContainer = document.getElementById('jbw-level-filter');
-        const cityInput = document.getElementById('jbw-city-input');
-        const stateSelect = document.getElementById('jbw-state-select');
-        const postalInput = document.getElementById('jbw-postal-input');
         const milesInput = document.getElementById('jbw-miles-input');
+        const postalInput = document.getElementById('jbw-postal-input');
         const searchInput = document.getElementById('jbw-search-input');
-        const typeFilterContainer = document.getElementById('jbw-type-filter');
+        const stateSelect = document.getElementById('jbw-state-select');
         const textSearchBtn = document.getElementById('jbw-apply-text-filters');
+        const typeFilterContainer = document.getElementById('jbw-type-filter');
+        const workplaceFilterContainer = document.getElementById('jbw-workplace-filter');
+
+        const US_STATES = [
+            ['', 'Select a State...'],
+            ['AL', 'Alabama'],
+            ['AK', 'Alaska'],
+            ['AZ', 'Arizona'],
+            ['AR', 'Arkansas'],
+            ['CA', 'California'],
+            ['CO', 'Colorado'],
+            ['CT', 'Connecticut'],
+            ['DE', 'Delaware'],
+            ['DC', 'District of Columbia'],
+            ['FL', 'Florida'],
+            ['GA', 'Georgia'],
+            ['HI', 'Hawaii'],
+            ['ID', 'Idaho'],
+            ['IL', 'Illinois'],
+            ['IN', 'Indiana'],
+            ['IA', 'Iowa'],
+            ['KS', 'Kansas'],
+            ['KY', 'Kentucky'],
+            ['LA', 'Louisiana'],
+            ['ME', 'Maine'],
+            ['MD', 'Maryland'],
+            ['MA', 'Massachusetts'],
+            ['MI', 'Michigan'],
+            ['MN', 'Minnesota'],
+            ['MS', 'Mississippi'],
+            ['MO', 'Missouri'],
+            ['MT', 'Montana'],
+            ['NE', 'Nebraska'],
+            ['NV', 'Nevada'],
+            ['NH', 'New Hampshire'],
+            ['NJ', 'New Jersey'],
+            ['NM', 'New Mexico'],
+            ['NY', 'New York'],
+            ['NC', 'North Carolina'],
+            ['ND', 'North Dakota'],
+            ['OH', 'Ohio'],
+            ['OK', 'Oklahoma'],
+            ['OR', 'Oregon'],
+            ['PA', 'Pennsylvania'],
+            ['RI', 'Rhode Island'],
+            ['SC', 'South Carolina'],
+            ['SD', 'South Dakota'],
+            ['TN', 'Tennessee'],
+            ['TX', 'Texas'],
+            ['UT', 'Utah'],
+            ['VT', 'Vermont'],
+            ['VA', 'Virginia'],
+            ['WA', 'Washington'],
+            ['WV', 'West Virginia'],
+            ['WI', 'Wisconsin'],
+            ['WY', 'Wyoming']
+        ];
+
+        // Populate state dropdown
+        function populateStateDropdown() {
+            if (!stateSelect) return;
+            stateSelect.innerHTML = '';
+            US_STATES.forEach(([code, name]) => {
+                const opt = document.createElement('option');
+                opt.value = code;
+                opt.textContent = name;
+                if (code === '') opt.selected = true;
+                stateSelect.appendChild(opt);
+            });
+        }
+
+        populateStateDropdown();
 
         // --- 3. LOGO & UTILITIES ---
         const LOGO_DEV_PUBLIC_KEY = 'pk_placeholder';
@@ -676,22 +801,22 @@
                 const bgColor = getCompanyColor(companyName);
 
                 jobCard.innerHTML = `
-            <div class="job-card-header">
-                <div class="logo-container">
-                    <div class="logo-fallback" style="background-color: ${bgColor};">${initials}</div>
-                    <img src="${logoUrl}" alt="${escapeHtml(companyName)} logo" onerror="this.style.display='none'">
-                </div>
-                <div>
-                    <h2 class="job-card-title"></h2>
-                    <p class="job-card-company"></p>
-                </div>
-            </div>
-            <div class="job-card-details">
-                <span>📍 <span class="job-card-location"></span></span>
-                <span class="job-card-type"></span>
-                <span class="job-card-level"></span>
-            </div>
-        `;
+                    <div class="job-card-header">
+                        <div class="logo-container">
+                            <div class="logo-fallback" style="background-color: ${bgColor};">${initials}</div>
+                            <img src="${logoUrl}" alt="${escapeHtml(companyName)} logo" onerror="this.style.display='none'">
+                        </div>
+                        <div>
+                            <h2 class="job-card-title"></h2>
+                            <p class="job-card-company"></p>
+                        </div>
+                    </div>
+                    <div class="job-card-details">
+                        <span>📍 <span class="job-card-location"></span></span>
+                        <span class="job-card-type"></span>
+                        <span class="job-card-level"></span>
+                    </div>
+                `;
 
                 jobCard.querySelector('.job-card-company').textContent = companyName;
                 jobCard.querySelector('.job-card-level').textContent = formatLevel(job.level || '');
@@ -705,11 +830,39 @@
         };
 
         // --- 5. FILTERING LOGIC ---
+        function isValidStateAbbr(abbr) {
+            return US_STATES.some(([code]) => code === abbr);
+        }
+
+        function showFilterError(msg) {
+            const errorDiv = document.getElementById('jbw-filter-error');
+            errorDiv.textContent = msg;
+            errorDiv.classList.add('visible');
+        }
+
+        function hideFilterError() {
+            const errorDiv = document.getElementById('jbw-filter-error');
+            errorDiv.textContent = '';
+            errorDiv.classList.remove('visible');
+        }
+
         const applyFilters = async () => {
             const city = cityInput.value.trim();
             const state = stateSelect.value;
             const postal = postalInput.value.trim();
             const distance = milesInput.value ? parseInt(milesInput.value, 10) : null;
+
+            if (state && !isValidStateAbbr(state)) {
+                showFilterError('Please select a valid state.');
+                return;
+            }
+
+            if (city && city.length > 40) {
+                showFilterError('City name must be 40 characters or less.');
+                return;
+            }
+
+            hideFilterError();
 
             let cityState = null;
             let postalCode = null;
@@ -733,7 +886,8 @@
                 postal_code: postalCode,
                 distance_miles: distanceMiles,
                 employment_types: getCheckedValues(typeFilterContainer),
-                experience_level: selectedLevel ? selectedLevel.value : null
+                experience_level: selectedLevel ? selectedLevel.value : null,
+                workplace_types: getCheckedValues(workplaceFilterContainer)
             };
 
             await fetchJobs(filters);
@@ -757,7 +911,6 @@
             } else {
                 e.target.classList.remove('placeholder');
             }
-            applyFilters();
         });
 
         postalInput.addEventListener('input', (e) => {
@@ -768,11 +921,10 @@
             e.target.value = e.target.value.replace(/[^0-9]/g, '');
             let val = parseInt(e.target.value, 10);
             if (val > 12500) e.target.value = '12500';
-            if (val < 5) e.target.value = '5';
+            if (val < 1) e.target.value = '1';
         });
 
-        typeFilterContainer.addEventListener('change', applyFilters);
-        levelFilterContainer.addEventListener('change', applyFilters);
+        // No auto-search on filter changes
 
         clearFiltersBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -784,7 +936,7 @@
             milesInput.value = '30';
             ROOT.querySelectorAll('input[type="checkbox"], input[type="radio"]')
                 .forEach(el => el.checked = false);
-            applyFilters();
+            hideFilterError();
         });
 
         // --- 7. INITIAL RENDER ---
