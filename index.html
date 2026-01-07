@@ -886,14 +886,14 @@
             stateSelect.classList.remove('jbw-input-error');
             postalInput.classList.remove('jbw-input-error');
 
-            if (city && !state) {
+            if ((city && !state) && !postal) {
                 errorEl.textContent = 'Please select a state for the city provided.';
                 errorEl.classList.add('visible');
                 stateSelect.classList.add('jbw-input-error');
                 return;
             }
 
-            if (state && !city) {
+            if ((state && !city) && !postal) {
                 errorEl.textContent = 'Please enter a city for the state selected.';
                 errorEl.classList.add('visible');
                 cityInput.classList.add('jbw-input-error');
