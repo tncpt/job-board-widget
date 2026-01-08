@@ -775,14 +775,12 @@
                     title: job.job_title,
                     company: job.company,
                     location: job.location,
-                    types: extractJobType(job.job_title),
+                    types: extractJobType(job.job_title, job.description),
                     level: job.level,
                     url: job.url,
                     description: job.description,
                     posted_date: job.posted_date
                 }));
-
-                renderJobs(currentJobs);
             } catch (err) {
                 if (err.name === 'AbortError') return;
 
@@ -790,12 +788,18 @@
             }
         }
 
-        function extractJobType(title) {
+        function extractJobType(title, description) {
             const normalize = str => String(str || '').toLowerCase().replace(/[-\s]/g, '');
             const titleNorm = normalize(title);
+            const descNorm = normalize(description);
             const types = ['contract', 'full-time', 'part-time', 'per-diem', 'prn'];
-            const matches = types.filter(type => titleNorm.includes(normalize(type)))
-                .map(type => type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-'));
+            const matches = types.filter(type =>
+                titleNorm.includes(normalize(type)) || descNorm.includes(normalize(type))
+            ).map(type => {
+                if (type.toLowerCase() === 'prn') return 'PRN';
+                // Only first letter uppercase, rest lowercase for each word
+                return type.split('-').map((w, i) => i === 0 ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toLowerCase()).join('-');
+            });
             return matches.length > 0 ? matches : ['Full-time'];
         }
 
@@ -919,13 +923,21 @@
         // --- 5. FILTERING LOGIC ---
         // Helper: Extract work settings from job title (case-insensitive, returns array)
         function extractWorkSettings(title) {
-            const settings = ['Remote', 'On-site', 'Hybrid', 'Field'];
+            // Use location field as received from DB, unaltered
+            // This function now expects the location as its argument
             const found = [];
-            const titleNorm = String(title || '').toLowerCase();
-            settings.forEach(setting => {
-                // Case-insensitive match, but return original case
-                if (titleNorm.includes(setting.toLowerCase())) found.push(setting);
+            const locationStr = String(title || '');
+            const explicitSettings = ['Remote', 'Hybrid', 'Field'];
+            let hasExplicit = false;
+            explicitSettings.forEach(setting => {
+                if (locationStr.includes(setting)) {
+                    found.push(setting);
+                    hasExplicit = true;
+                }
             });
+            if (locationStr.includes('On-site') || !hasExplicit) {
+                found.push('On-site');
+            }
             return found;
         }
 
@@ -933,13 +945,55 @@
         function extractEmploymentType(title) {
             const types = ['Contract', 'Full-time', 'Part-time', 'Per-diem', 'PRN'];
             const titleNorm = String(title || '').toLowerCase();
+            // Try to find description in the job object if available
+            let descNorm = '';
+            if (typeof this !== 'undefined' && this.description) {
+                descNorm = String(this.description).toLowerCase();
+            }
             for (const type of types) {
-                if (titleNorm.includes(type.toLowerCase())) return type;
+                if (titleNorm.includes(type.toLowerCase()) || descNorm.includes(type.toLowerCase())) return type;
             }
             return 'Full-time';
         }
 
-        // Main filter function
+        // --- FILTERING LOGIC REFACTOR ---
+        // Only top filters (above Search Jobs) trigger DB fetch. Bottom filters filter in-memory jobs.
+
+        // Applies in-memory filters (bottom filters) to currentJobs and renders
+        function applyInMemoryFilters() {
+            let filteredJobs = currentJobs.slice();
+
+            // Experience Level (single select)
+            const selectedLevel = levelFilterContainer.querySelector('input[name="experience_level"]:checked');
+            if (selectedLevel) {
+                filteredJobs = filteredJobs.filter(job => {
+                    return (job.level || '').toLowerCase() === selectedLevel.value.toLowerCase();
+                });
+            }
+
+            // Employment Type (multi, AND logic)
+            const selectedTypes = getCheckedValues(typeFilterContainer);
+            if (selectedTypes.length > 0) {
+                filteredJobs = filteredJobs.filter(job => {
+                    // job.types is always an array
+                    return job.types.some(type => selectedTypes.includes(type));
+                });
+            }
+
+            // Work Setting (multi, OR logic)
+            const selectedSettings = getCheckedValues(workplaceFilterContainer);
+            if (selectedSettings.length > 0) {
+                filteredJobs = filteredJobs.filter(job => {
+                    const jobSettings = extractWorkSettings(job.location);
+                    // OR logic: at least one selected setting matches jobSettings
+                    return selectedSettings.some(setting => jobSettings.includes(setting));
+                });
+            }
+
+            renderJobs(filteredJobs);
+        }
+
+        // Main filter function: only top filters trigger DB fetch
         const applyFilters = async () => {
             const city = cityInput.value.trim();
             const state = stateSelect.value;
@@ -952,73 +1006,38 @@
             stateSelect.classList.remove('jbw-input-error');
             postalInput.classList.remove('jbw-input-error');
 
-            // Top filters: DB query
-            if (city || state || postal || searchInput.value.trim()) {
-                if ((city && !state) && !postal) {
-                    errorEl.textContent = 'Please select a state for the city provided.';
-                    errorEl.classList.add('visible');
-                    stateSelect.classList.add('jbw-input-error');
-                    return;
-                }
-                if ((state && !city) && !postal) {
-                    errorEl.textContent = 'Please enter a city for the state selected.';
-                    errorEl.classList.add('visible');
-                    cityInput.classList.add('jbw-input-error');
-                    return;
-                }
-                if ((city || state || postal) && !distance) {
-                    errorEl.textContent = 'Please provide a distance for location search.';
-                    errorEl.classList.add('visible');
-                    return;
-                }
-                let cityState = (city && state) ? `${city}, ${state}` : null;
-                let postalCode = (postal && postal.length === 5) ? postal : null;
-                const selectedLevel = levelFilterContainer.querySelector('input[name="experience_level"]:checked');
-                const filters = {
-                    keyword: searchInput.value.trim() || null,
-                    city_state: cityState,
-                    postal_code: postalCode,
-                    distance_miles: (cityState || postalCode) ? distance : null,
-                    employment_types: getCheckedValues(typeFilterContainer),
-                    experience_level: selectedLevel ? selectedLevel.value : null,
-                    workplace_types: getCheckedValues(workplaceFilterContainer)
-                };
-                await fetchJobs(filters);
+            if ((city && !state) && !postal) {
+                errorEl.textContent = 'Please select a state for the city provided.';
+                errorEl.classList.add('visible');
+                stateSelect.classList.add('jbw-input-error');
+                return;
+            }
+            if ((state && !city) && !postal) {
+                errorEl.textContent = 'Please enter a city for the state selected.';
+                errorEl.classList.add('visible');
+                cityInput.classList.add('jbw-input-error');
+                return;
+            }
+            if ((city || state || postal) && !distance) {
+                errorEl.textContent = 'Please provide a distance for location search.';
+                errorEl.classList.add('visible');
                 return;
             }
 
-            // Bottom filters: In-memory filtering
-            let filteredJobs = currentJobs.slice();
+            let cityState = (city && state) ? `${city}, ${state}` : null;
+            let postalCode = (postal && postal.length === 5) ? postal : null;
+            const filters = {
+                keyword: searchInput.value.trim() || null,
+                city_state: cityState,
+                postal_code: postalCode,
+                distance_miles: (cityState || postalCode) ? distance : null,
+                employment_types: [],
+                experience_level: null,
+                workplace_types: []
+            };
 
-            // Experience Level (radio, single value)
-            const selectedLevel = levelFilterContainer.querySelector('input[name="experience_level"]:checked');
-            if (selectedLevel) {
-                filteredJobs = filteredJobs.filter(job => {
-                    // Normalize both sides
-                    return (job.level || '').toLowerCase() === selectedLevel.value.toLowerCase();
-                });
-            }
-
-            // Employment Type (multi, AND logic)
-            const selectedTypes = getCheckedValues(typeFilterContainer);
-            if (selectedTypes.length > 0) {
-                filteredJobs = filteredJobs.filter(job => {
-                    const jobType = extractEmploymentType(job.title);
-                    return selectedTypes.includes(jobType);
-                });
-            }
-
-            // Work Setting (multi, OR logic)
-            const selectedSettings = getCheckedValues(workplaceFilterContainer);
-            if (selectedSettings.length > 0) {
-                filteredJobs = filteredJobs.filter(job => {
-                    const jobSettings = extractWorkSettings(job.title);
-                    // OR logic: at least one selected setting matches jobSettings
-                    return selectedSettings.some(setting => jobSettings.includes(setting));
-                });
-            }
-
-            renderJobs(filteredJobs);
+            await fetchJobs(filters);
+            applyInMemoryFilters(); // always apply in-memory filters after DB fetch
         };
 
         // --- 6. DRY MULTI-SELECT INITIALIZATION ---
@@ -1084,12 +1103,11 @@
                 if (e.target.classList.contains('jbw-tag-remove')) {
                     const val = e.target.getAttribute('data-value');
                     const cb = Array.from(checkboxes).find(c => c.value === val);
-                    if (cb) { cb.checked = false; renderTags(); }
+                    if (cb) { cb.checked = false; renderTags(); applyInMemoryFilters(); }
                 }
             });
 
-            checkboxes.forEach(cb => cb.addEventListener('change', renderTags));
-            
+            checkboxes.forEach(cb => cb.addEventListener('change', () => { renderTags(); applyInMemoryFilters(); }));
             // Store reference for the clear button
             activeDropdowns.push({ wrapper, menu, renderTags });
             renderTags();
@@ -1105,6 +1123,11 @@
             el.addEventListener('keydown', (e) => { if (e.key === 'Enter') applyFilters(); });
         });
 
+        // Real-time in-memory filtering for Experience Level (radio buttons)
+        levelFilterContainer.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', applyInMemoryFilters);
+        });
+
         document.addEventListener('click', (e) => {
             activeDropdowns.forEach(d => {
                 if (!d.wrapper.contains(e.target)) {
@@ -1114,14 +1137,14 @@
             });
         });
 
-        clearFiltersBtn.addEventListener('click', (e) => {
+        clearFiltersBtn.addEventListener('click', async (e) => {
             e.preventDefault();
 
-            searchInput.value = ''; 
-            cityInput.value = ''; 
+            searchInput.value = '';
+            cityInput.value = '';
             stateSelect.value = '';
             stateSelect.classList.add('placeholder');
-            postalInput.value = ''; 
+            postalInput.value = '';
             milesInput.value = '30';
 
             const errorEl = document.getElementById('jbw-filter-error');
@@ -1132,10 +1155,16 @@
 
             activeDropdowns.forEach(d => d.renderTags());
 
-            applyFilters();
+            // Fetch all jobs from DB (no filters)
+            await fetchJobs({});
+            applyInMemoryFilters();
         });
 
-        applyFilters();
+        // Initial load: fetch all jobs, then apply in-memory filters (should show all)
+        (async () => {
+            await fetchJobs({});
+            applyInMemoryFilters();
+        })();
     })();
 </script>
 <!-- END Circle Widget Body -->
