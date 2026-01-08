@@ -11,6 +11,9 @@
     :root {
         --primary-color: var(--brand, #007daf);
         --secondary-color: #e67300;
+        --tertiary-color: #10a597;
+        --accent-primary: #fdb813;
+        --accent-secondary: #bd3f67;
         --background-color: var(--color-background-secondary, #fefcfa);
         --card-background: var(--color-background-primary, #f7f9fa);
         --text-color: var(--color-text-dark, #2b2b2b);
@@ -21,8 +24,12 @@
         --alert-red: #e51235;
     }
 
+    html {
+        font-size: 16px;
+    }
+
     #jbw-root .jbw-input-error {
-        border: 2px solid var(--alert-red) !important;
+        border: 3px solid var(--alert-red) !important;
         outline: none;
     }
 
@@ -275,7 +282,7 @@
 
     .jbw-dropdown-trigger::after {
         content: '▼';
-        font-size: 0.7rem;
+        font-size: 0.875rem;
         color: var(--light-text-color);
     }
 
@@ -326,7 +333,7 @@
         color: white;
         padding: 4px 10px;
         border-radius: 15px;
-        font-size: 0.8rem;
+        font-size: 1.0rem;
         font-weight: 600;
         display: flex;
         align-items: center;
@@ -362,8 +369,10 @@
     }
 
     #jbw-root #jbw-apply-text-filters {
-        background-color: var(--primary-color);
+        background-color: var(--secondary-color);
         margin-top: 25px;
+        font-weight: bold;
+        font-size: 1.1rem;
     }
 
     #jbw-root .clear-filters-link {
@@ -385,7 +394,7 @@
         color: var(--alert-red);
         background: none;
         font-size: 0.98rem;
-        margin: 0 0 10px 0;
+        margin: 20px 0 0 0;
         padding: 0;
         text-align: left;
     }
@@ -460,7 +469,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: bold;
+        font-weight: 800;
         color: white;
         font-size: 1.2rem;
         position: absolute;
@@ -481,6 +490,7 @@
     }
 
     #jbw-root .job-card-company {
+        font-size: 1rem;
         font-weight: 500;
         line-height: 1.5;
         color: var(--text-color);
@@ -492,7 +502,7 @@
         gap: 15px;
         color: var(--text-color);
         opacity: 0.8;
-        font-size: 0.875rem;
+        font-size: 1rem;
         font-weight: 500;
         line-height: 1.4;
     }
@@ -618,7 +628,7 @@
                 <div class="filter-panel-top">
                     <div class="filter-group">
                         <h3>Search by Keyword</h3>
-                        <input type="text" id="jbw-search-input" placeholder="e.g., Informatics, Manager">
+                        <input type="text" id="jbw-search-input" placeholder="e.g., Manager, Specialist">
                     </div>
 
                     <div class="filter-group">
@@ -633,7 +643,7 @@
 
                     <div class="filter-group">
                         <h3>Zip Code</h3>
-                        <input type="text" id="jbw-postal-input" placeholder="e.g., 10001" maxlength="5"
+                        <input type="text" id="jbw-postal-input" placeholder="e.g., 90013" maxlength="5"
                             pattern="[0-9]*" inputmode="numeric">
                     </div>
 
@@ -657,9 +667,9 @@
                     </div>
 
                     <div class="filter-group">
-                        <h3>Job Type</h3>
+                        <h3>Employment Type</h3>
                         <div class="jbw-dropdown-wrapper" id="jt-wrapper">
-                            <button type="button" class="jbw-dropdown-trigger placeholder" id="jt-trigger">Select Job Type...</button>
+                            <button type="button" class="jbw-dropdown-trigger placeholder" id="jt-trigger">Select...</button>
                             <div class="jbw-dropdown-menu" id="jt-menu">
                                 <div class="checkbox-group" id="jbw-type-filter">
                                     <label><input type="checkbox" value="Contract"> Contract</label>
@@ -674,9 +684,9 @@
                     </div>
 
                     <div class="filter-group" style="margin-bottom: 4px;">
-                        <h3>Workplace</h3>
+                        <h3>Work Setting</h3>
                         <div class="jbw-dropdown-wrapper" id="wp-wrapper">
-                            <button type="button" class="jbw-dropdown-trigger placeholder" id="wp-trigger">Select Workplace...</button>
+                            <button type="button" class="jbw-dropdown-trigger placeholder" id="wp-trigger">Select...</button>
                             <div class="jbw-dropdown-menu" id="wp-menu">
                                 <div class="checkbox-group" id="jbw-workplace-filter">
                                     <label><input type="checkbox" value="Remote"> Remote</label>
@@ -689,7 +699,7 @@
                         <div class="jbw-tag-container" id="wp-tags-container"></div>
                     </div>
 
-                    <a href="#" id="jbw-clear-filters-link" class="clear-filters-link">Clear All Filters</a>
+                    <a href="#" id="jbw-clear-filters-link" class="clear-filters-link">Clear Search & Filters</a>
                 </div>
             </aside>
 
@@ -737,7 +747,6 @@
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/filter_jobs`, {
                     method: 'POST',
-                    // Attach the signal to the fetch request
                     signal: fetchController.signal,
                     headers: {
                         'Content-Type': 'application/json',
@@ -749,9 +758,9 @@
                         city_state: filters.city_state || null,
                         postal_code: filters.postal_code || null,
                         distance_miles: filters.distance_miles || null,
-                        employment_types: filters.employment_types || [],
-                        experience_level: filters.experience_level || null,
-                        workplace_types: filters.workplace_types || []
+                        employment_types: [],
+                        experience_level: null,
+                        workplace_types: []
                     })
                 });
 
@@ -763,14 +772,14 @@
                 const data = await response.json();
                 currentJobs = data.map(job => ({
                     id: job.id,
-                    title: job.job_title || job.title,
+                    title: job.job_title,
                     company: job.company,
                     location: job.location,
-                    type: extractJobType(job.job_title || job.title),
+                    types: extractJobType(job.job_title),
                     level: job.level,
                     url: job.url,
                     description: job.description,
-                    posted_date: job.posted_date || job.nc101_share_date
+                    posted_date: job.posted_date
                 }));
 
                 renderJobs(currentJobs);
@@ -782,18 +791,16 @@
         }
 
         function extractJobType(title) {
-            const titleLower = (title || '').toLowerCase();
+            const normalize = str => String(str || '').toLowerCase().replace(/[-\s]/g, '');
+            const titleNorm = normalize(title);
             const types = ['contract', 'full-time', 'part-time', 'per-diem', 'prn'];
-            for (const type of types) {
-                if (titleLower.includes(type)) {
-                    return type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-');
-                }
-            }
-            return 'Full-time';
+            const matches = types.filter(type => titleNorm.includes(normalize(type)))
+                .map(type => type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-'));
+            return matches.length > 0 ? matches : ['Full-time'];
         }
 
         // --- 2. US STATES DATA & DROPDOWN LOGIC ---
-        const US_STATES = [['', 'Select a State...'],['AL', 'Alabama'],['AK', 'Alaska'],['AZ', 'Arizona'],['AR', 'Arkansas'],['CA', 'California'],['CO', 'Colorado'],['CT', 'Connecticut'],['DE', 'Delaware'],['DC', 'District of Columbia'],['FL', 'Florida'],['GA', 'Georgia'],['HI', 'Hawaii'],['ID', 'Idaho'],['IL', 'Illinois'],['IN', 'Indiana'],['IA', 'Iowa'],['KS', 'Kansas'],['KY', 'Kentucky'],['LA', 'Louisiana'],['ME', 'Maine'],['MD', 'Maryland'],['MA', 'Massachusetts'],['MI', 'Michigan'],['MN', 'Minnesota'],['MS', 'Mississippi'],['MO', 'Missouri'],['MT', 'Montana'],['NE', 'Nebraska'],['NV', 'Nevada'],['NH', 'New Hampshire'],['NJ', 'New Jersey'],['NM', 'New Mexico'],['NY', 'New York'],['NC', 'North Carolina'],['ND', 'North Dakota'],['OH', 'Ohio'],['OK', 'Oklahoma'],['OR', 'Oregon'],['PA', 'Pennsylvania'],['RI', 'Rhode Island'],['SC', 'South Carolina'],['SD', 'South Dakota'],['TN', 'Tennessee'],['TX', 'Texas'],['UT', 'Utah'],['VT', 'Vermont'],['VA', 'Virginia'],['WA', 'Washington'],['WV', 'West Virginia'],['WI', 'Wisconsin'],['WY', 'Wyoming']];
+        const US_STATES = [['', 'Select...'],['AL', 'Alabama'],['AK', 'Alaska'],['AZ', 'Arizona'],['AR', 'Arkansas'],['CA', 'California'],['CO', 'Colorado'],['CT', 'Connecticut'],['DE', 'Delaware'],['DC', 'District of Columbia'],['FL', 'Florida'],['GA', 'Georgia'],['HI', 'Hawaii'],['ID', 'Idaho'],['IL', 'Illinois'],['IN', 'Indiana'],['IA', 'Iowa'],['KS', 'Kansas'],['KY', 'Kentucky'],['LA', 'Louisiana'],['ME', 'Maine'],['MD', 'Maryland'],['MA', 'Massachusetts'],['MI', 'Michigan'],['MN', 'Minnesota'],['MS', 'Mississippi'],['MO', 'Missouri'],['MT', 'Montana'],['NE', 'Nebraska'],['NV', 'Nevada'],['NH', 'New Hampshire'],['NJ', 'New Jersey'],['NM', 'New Mexico'],['NY', 'New York'],['NC', 'North Carolina'],['ND', 'North Dakota'],['OH', 'Ohio'],['OK', 'Oklahoma'],['OR', 'Oregon'],['PA', 'Pennsylvania'],['RI', 'Rhode Island'],['SC', 'South Carolina'],['SD', 'South Dakota'],['TN', 'Tennessee'],['TX', 'Texas'],['UT', 'Utah'],['VT', 'Vermont'],['VA', 'Virginia'],['WA', 'Washington'],['WV', 'West Virginia'],['WI', 'Wisconsin'],['WY', 'Wyoming']];
 
         function populateStateDropdown() {
             if (!stateSelect) return;
@@ -843,13 +850,27 @@
             return parts.length === 1 ? parts[0].substring(0, 2).toUpperCase() : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
         };
 
-        const getCompanyColor = (name) => {
-            if (!name) return '#717680';
-            let hash = 0;
-            for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-            let r = Math.min((hash & 0xFF0000) >> 16, 160), g = Math.min((hash & 0x00FF00) >> 8, 160), b = Math.min((hash & 0x0000FF), 160);
-            return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
-        };
+        const getCompanyColor = (() => {
+            let colorList = null;
+            let previousIdx = null;
+            return (name) => {
+                if (!colorList) {
+                    colorList = [
+                        getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim() || '#007daf',
+                        getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim() || '#e67300',
+                        getComputedStyle(document.documentElement).getPropertyValue('--tertiary-color').trim() || '#10a597',
+                        getComputedStyle(document.documentElement).getPropertyValue('--accent-primary').trim() || '#fdb813',
+                        getComputedStyle(document.documentElement).getPropertyValue('--accent-secondary').trim() || '#bd3f67',
+                    ];
+                }
+                let idx;
+                do {
+                    idx = Math.floor(Math.random() * colorList.length);
+                } while (colorList.length > 1 && idx === previousIdx);
+                previousIdx = idx;
+                return colorList[idx];
+            };
+        })();
 
         const getLogoUrl = (companyName) => {
             if (!companyName) return null;
@@ -889,13 +910,36 @@
                 jobCard.querySelector('.job-card-level').textContent = formatLevel(job.level || '');
                 jobCard.querySelector('.job-card-location').textContent = job.location || '';
                 jobCard.querySelector('.job-card-title').textContent = job.title || '';
-                jobCard.querySelector('.job-card-type').textContent = job.type || '';
+                jobCard.querySelector('.job-card-type').textContent = (job.types && job.types.length > 0) ? job.types.join(', ') : '';
                 fragment.appendChild(jobCard);
             });
             jobListContainer.appendChild(fragment);
         };
 
         // --- 5. FILTERING LOGIC ---
+        // Helper: Extract work settings from job title (case-insensitive, returns array)
+        function extractWorkSettings(title) {
+            const settings = ['Remote', 'On-site', 'Hybrid', 'Field'];
+            const found = [];
+            const titleNorm = String(title || '').toLowerCase();
+            settings.forEach(setting => {
+                // Case-insensitive match, but return original case
+                if (titleNorm.includes(setting.toLowerCase())) found.push(setting);
+            });
+            return found;
+        }
+
+        // Helper: Normalize employment type from job title (matches backend logic)
+        function extractEmploymentType(title) {
+            const types = ['Contract', 'Full-time', 'Part-time', 'Per-diem', 'PRN'];
+            const titleNorm = String(title || '').toLowerCase();
+            for (const type of types) {
+                if (titleNorm.includes(type.toLowerCase())) return type;
+            }
+            return 'Full-time';
+        }
+
+        // Main filter function
         const applyFilters = async () => {
             const city = cityInput.value.trim();
             const state = stateSelect.value;
@@ -908,42 +952,73 @@
             stateSelect.classList.remove('jbw-input-error');
             postalInput.classList.remove('jbw-input-error');
 
-            if ((city && !state) && !postal) {
-                errorEl.textContent = 'Please select a state for the city provided.';
-                errorEl.classList.add('visible');
-                stateSelect.classList.add('jbw-input-error');
+            // Top filters: DB query
+            if (city || state || postal || searchInput.value.trim()) {
+                if ((city && !state) && !postal) {
+                    errorEl.textContent = 'Please select a state for the city provided.';
+                    errorEl.classList.add('visible');
+                    stateSelect.classList.add('jbw-input-error');
+                    return;
+                }
+                if ((state && !city) && !postal) {
+                    errorEl.textContent = 'Please enter a city for the state selected.';
+                    errorEl.classList.add('visible');
+                    cityInput.classList.add('jbw-input-error');
+                    return;
+                }
+                if ((city || state || postal) && !distance) {
+                    errorEl.textContent = 'Please provide a distance for location search.';
+                    errorEl.classList.add('visible');
+                    return;
+                }
+                let cityState = (city && state) ? `${city}, ${state}` : null;
+                let postalCode = (postal && postal.length === 5) ? postal : null;
+                const selectedLevel = levelFilterContainer.querySelector('input[name="experience_level"]:checked');
+                const filters = {
+                    keyword: searchInput.value.trim() || null,
+                    city_state: cityState,
+                    postal_code: postalCode,
+                    distance_miles: (cityState || postalCode) ? distance : null,
+                    employment_types: getCheckedValues(typeFilterContainer),
+                    experience_level: selectedLevel ? selectedLevel.value : null,
+                    workplace_types: getCheckedValues(workplaceFilterContainer)
+                };
+                await fetchJobs(filters);
                 return;
             }
 
-            if ((state && !city) && !postal) {
-                errorEl.textContent = 'Please enter a city for the state selected.';
-                errorEl.classList.add('visible');
-                cityInput.classList.add('jbw-input-error');
-                return;
-            }
+            // Bottom filters: In-memory filtering
+            let filteredJobs = currentJobs.slice();
 
-            if ((city || state || postal) && !distance) {
-                errorEl.textContent = 'Please provide a distance for location search.';
-                errorEl.classList.add('visible');
-                return;
-            }
-
-            let cityState = (city && state) ? `${city}, ${state}` : null;
-            let postalCode = (postal && postal.length === 5) ? postal : null;
-
+            // Experience Level (radio, single value)
             const selectedLevel = levelFilterContainer.querySelector('input[name="experience_level"]:checked');
+            if (selectedLevel) {
+                filteredJobs = filteredJobs.filter(job => {
+                    // Normalize both sides
+                    return (job.level || '').toLowerCase() === selectedLevel.value.toLowerCase();
+                });
+            }
 
-            const filters = {
-                keyword: searchInput.value.trim() || null,
-                city_state: cityState,
-                postal_code: postalCode,
-                distance_miles: (cityState || postalCode) ? distance : null,
-                employment_types: getCheckedValues(typeFilterContainer),
-                experience_level: selectedLevel ? selectedLevel.value : null,
-                workplace_types: getCheckedValues(workplaceFilterContainer)
-            };
+            // Employment Type (multi, AND logic)
+            const selectedTypes = getCheckedValues(typeFilterContainer);
+            if (selectedTypes.length > 0) {
+                filteredJobs = filteredJobs.filter(job => {
+                    const jobType = extractEmploymentType(job.title);
+                    return selectedTypes.includes(jobType);
+                });
+            }
 
-            await fetchJobs(filters);
+            // Work Setting (multi, OR logic)
+            const selectedSettings = getCheckedValues(workplaceFilterContainer);
+            if (selectedSettings.length > 0) {
+                filteredJobs = filteredJobs.filter(job => {
+                    const jobSettings = extractWorkSettings(job.title);
+                    // OR logic: at least one selected setting matches jobSettings
+                    return selectedSettings.some(setting => jobSettings.includes(setting));
+                });
+            }
+
+            renderJobs(filteredJobs);
         };
 
         // --- 6. DRY MULTI-SELECT INITIALIZATION ---
