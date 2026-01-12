@@ -1155,12 +1155,10 @@
 
             activeDropdowns.forEach(d => d.renderTags());
 
-            // Fetch all jobs from DB (no filters)
             await fetchJobs({});
             applyInMemoryFilters();
         });
 
-        // Initial load: fetch all jobs, then apply in-memory filters (should show all)
         (async () => {
             await fetchJobs({});
             applyInMemoryFilters();
