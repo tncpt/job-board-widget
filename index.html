@@ -421,6 +421,14 @@
         transition: transform 0.2s, box-shadow 0.2s;
     }
 
+    #jbw-root .job-card-featured {
+        background-color: color-mix(in srgb, var(--accent-primary) 5%, white 95%) !important;
+    }
+    #jbw-root .job-card-featured .job-card-company,
+    #jbw-root .job-card-featured .job-card-details {
+        color: #2b2b2b !important;
+    }
+
     #jbw-root .job-card,
     #jbw-root .job-card:active,
     #jbw-root .job-card:hover,
@@ -779,11 +787,11 @@
                     level: job.level,
                     url: job.url,
                     description: job.description,
-                    posted_date: job.posted_date
+                    posted_date: job.posted_date,
+                    is_featured: job.is_featured
                 }));
             } catch (err) {
                 if (err.name === 'AbortError') return;
-
                 document.getElementById('jbw-job-list').innerHTML = `<p class="no-jobs-found">Connection error: ${escapeHtml(err.message)}</p>`;
             }
         }
@@ -845,7 +853,6 @@
             stateSelect.classList.toggle('placeholder', stateSelect.value === '');
         });
 
-
         // --- 3. LOGO & UTILITIES ---
         const LOGO_DEV_PUBLIC_KEY = 'pk_placeholder';
         const getInitials = (name) => {
@@ -889,10 +896,22 @@
                 jobListContainer.innerHTML = '<p class="no-jobs-found">No jobs found matching your criteria.</p>';
                 return;
             }
+
             const fragment = document.createDocumentFragment();
-            jobsToRender.forEach(job => {
+            const sortedJobs = jobsToRender.slice().sort((a, b) => {
+                // Sort jobs: featured first
+                if (a.is_featured === b.is_featured) return 0;
+                return a.is_featured ? -1 : 1;
+            });
+            const get_featured_title = title => title ? `✨✨ ${title} ✨✨` : '✨✨ Featured Job ✨✨';
+
+            sortedJobs.forEach(job => {
                 const jobCard = document.createElement('a');
                 jobCard.classList.add('job-card');
+                if (job.is_featured) {
+                    jobCard.classList.add('job-card-featured');
+
+                }
                 jobCard.href = job.url; jobCard.target = "_blank";
                 const companyName = job.company || 'Unknown', logoUrl = getLogoUrl(companyName), initials = getInitials(companyName), bgColor = getCompanyColor(companyName);
 
@@ -902,7 +921,10 @@
                             <div class="logo-fallback" style="background-color: ${bgColor};">${initials}</div>
                             <img src="${logoUrl}" alt="${escapeHtml(companyName)} logo" onerror="this.style.display='none'">
                         </div>
-                        <div><h2 class="job-card-title"></h2><p class="job-card-company"></p></div>
+                        <div>
+                            <h2 class="job-card-title"></h2>
+                            <p class="job-card-company"></p>
+                        </div>
                     </div>
                     <div class="job-card-details">
                         <span>📍 <span class="job-card-location"></span></span>
@@ -910,11 +932,13 @@
                         <span class="job-card-level"></span>
                     </div>
                 `;
+
                 jobCard.querySelector('.job-card-company').textContent = companyName;
                 jobCard.querySelector('.job-card-level').textContent = formatLevel(job.level || '');
                 jobCard.querySelector('.job-card-location').textContent = job.location || '';
-                jobCard.querySelector('.job-card-title').textContent = job.title || '';
+                jobCard.querySelector('.job-card-title').textContent = job.is_featured ? get_featured_title(job.title || '') : job.title || '';
                 jobCard.querySelector('.job-card-type').textContent = (job.types && job.types.length > 0) ? job.types.join(', ') : '';
+
                 fragment.appendChild(jobCard);
             });
             jobListContainer.appendChild(fragment);
